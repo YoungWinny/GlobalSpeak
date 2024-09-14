@@ -2,16 +2,13 @@ import express from 'express'
 import dotenv from 'dotenv'
 import bcrypt from 'bcrypt'
 dotenv.config()
-import {router} from './routes/user.js'
+import router from './routes/user.js'
 import cors from 'cors'
 import mongoose from 'mongoose'
 //Importing dbConnector
 
 try {
-   await mongoose.connect('mongodb://localhost/27017/Global Speak', {
-     useNewUrlParser: true,
-     useUnifiedTopology: true,
-   }).then(() => {
+   await mongoose.connect('mongodb://127.0.0.1:27017/Global-Speak').then(() => {
      console.log('MongoDB connected');
    })
  } catch (err) {

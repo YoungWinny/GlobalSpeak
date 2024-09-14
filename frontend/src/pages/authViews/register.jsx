@@ -400,9 +400,9 @@ import { Link, useNavigate } from "react-router-dom";
 import Swal from 'sweetalert2';
 
 const Register = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("lebronj@gmail.com");
+  const [password, setPassword] = useState("password");
+  const [fullName, setFullName] = useState("Lebron James");
   const [isTypePassword, setIsTypePassword] = useState(true);
   const [errors, setErrors] = useState({ email: "", password: "", fullName: "" });
   const navigate = useNavigate();
@@ -435,7 +435,7 @@ const Register = () => {
     setErrors(errors);
 
     if (valid) {
-      axios.post("http://localhost:3000/auth/register", {
+      axios.post("http://localhost:3000/auth/signup", {
         fullName,
         email,
         password,
