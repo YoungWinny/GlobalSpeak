@@ -109,6 +109,9 @@ import ManageAccount  from './dashboard pages/manageaccounts';
 import MakePayment from './dashboard pages/makepayment';
 import ManageUser from './dashboard pages/manageusers';
 import CreateJob from './dashboard pages/createjob';
+import ManageApplications from './dashboard pages/manageapplications';
+import JobDetails from './dashboard pages/jobdetails';
+
 
 export const Dashboard = () => {
   const [darkMode, setDarkMode] = useState(false);
@@ -143,6 +146,10 @@ export const Dashboard = () => {
         return <ManageAccount /> 
       case "/dashboard/createjob":
         return <CreateJob/> 
+      case "/dashboard/manageapplications":
+        return <ManageApplications/>
+      case "/dashboard/job":
+        return <JobDetails/>    
       default:
         return <Home/>
      }

@@ -39,13 +39,15 @@ router.post('/login', async (req, res) => {
     if (!user) {
         return res.status(404).json({ message: "user does not exist !!!" })
     }
-    const validPassword = await bcrypt.compare(password, user.password)
+
+    const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword) {
         return res.status(400).json({ message: "Invalid password try again !!!" })
     }
 
     const token = jwt.sign({ email: user.email }, KEY, { expiresIn: '1hr' })
     res.cookie('token', token, { httpOnly: true, maxAge: 36000 })
+    console.log("Login successful")
     return res.json({ status: true, message: "login successfully" })
 })
 

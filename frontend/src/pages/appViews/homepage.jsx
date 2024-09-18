@@ -4,153 +4,7 @@ import location from "../../assets/images/location-pin-svgrepo-com.svg";
 import arrow from"../../assets/images/arrow-right-svgrepo-com-5.svg";
 import mapImage from "../../assets/images/Mapsicle Map.png";
 import translate from "../../assets/images/translation-icon-translate-language-svgrepo-com.svg";
-// export const Homepage = () => {
-//   return (
-//     <div className="page bg-[#FEF9F8] w-full h-full px-[48px] ">
-//       <div className="top w-full h-full">
-//         {/* header */}
-//         <div className="header flex justify-between w-full ">
-//           {/* left header section */}
-//           <div className="header inline-flex relative ">
-//             <div className="flex flex-row">
-//               <img
-//                 className="mt-8"
-//                 src="src/assets/images/headphone-5-svgrepo-com.svg"
-//                 alt="logo"
-//               />
-//               <h1 className="mt-12 font-black text-3xl">GlobalSpeak</h1>
-//             </div>
-//           </div>
-//           {/* right header section */}
-//           <div className="flex justify-between space-x-2 mt-8 absolute right-5 ">
-//             <button className="bg-[white] text-[rgba(239,146,115,1)]  hover:bg-gray-200 px-4 py-2">
-//               Login
-//             </button>
-//             <button className="bg-[rgba(239,146,115,1)] text-[white]">
-//               Sign Up
-//             </button>
-//           </div>
-//         </div>
-//       </div>
-//       <div className="flex flex-row w-full">
-//         {/* middle left */}
-//         <div className="mt-40 bg-[#FEF9F8] w-1/2 h-full items-center flex flex-col gap-[32px]">
-//           <div className="flex flex-col items-center">
-//             <p className="[font-family:'Fraunces-Regular',Helvetica] font-normal text-[64px] tracking-[0] leading-[normal]">
-//               Discover more than{" "}
-//             </p>
-//             <p className=" [font-family:'Fraunces-Regular',Helvetica] font-normal text-[64px] tracking-[0] leading-[normal] text-[rgba(239,146,115,1)]">
-//               4000 + Translation <br />
-//               and Transcription Jobs{" "}
-//             </p>
-
-//             <img
-//               className="h-[120px] w-[120px] self-center"
-//               src="src/assets/images/scribblecolor.svg"
-//             />
-//           </div>
-
-//           <p className="text-[rgba(185,185,185,1)] text-2xl">
-//             Our business services are powered by crowdsourcing, the most
-//             exciting <br />
-//             and rapidly growing business model for today's globalized world.{" "}
-//             <br />
-//             We hire talented people around the globe who have skills in
-//             languages and technology <br />
-//             to provide deep market insight for our services.
-//           </p>
-//           <div className="mt-8 bg-white flex flex-row w-4/5 h-[72px] justify-evenly mt-[100px]">
-//             <div className="flex mt-2 gap-4">
-//               <img
-//                 style={{ width: "41px", height: "41px" }}
-//                 src={search}
-//                 alt=""
-//               />
-//               <input
-//                 className="bg-white h-1/2 w-full mt-1 focus:outline-none focus:ring-0 border-b-2 border-[#BEBEBE]"
-//                 type="text"
-//                 placeholder="job title or keyword"
-//               />
-//             </div>
-//             <div className="flex mt-2 gap-4">
-//               <img
-//                 style={{ width: "41px", height: "41px" }}
-//                 src={location}
-//                 alt=""
-//               />
-//               {/* <input
-//                 className="bg-white h-1/2 w-full mt-1 focus:outline-none focus:border-transparent focus:ring-0"
-//                 type="dropdown"
-//                 placeholder="Yaounde,Cameroon "
-//               /> */}
-//               <select 
-//                     className="bg-white h-1/2 w-full mt-1 focus:outline-none focus:ring-0 border-b-2 border-[#BEBEBE]"
-//               name="" id="">
-//                 <option value="yde">Yaounde, CMR</option>
-//                 <option value="yde">Maroua, CMR</option>
-//               </select>
-//             </div>
-//             <div className="flex ">
-//               <button className="bg-[rgba(239,146,115,1)] text-[white] mt-3  focus:outline-none focus:border-transparent focus:ring-0">
-//                 Search my job
-//               </button>
-//             </div>
-//           </div>
-//         </div>
-//         {/* middle right */}
-//         <div className="mt-[100px] bg-[#FEF9F8]">
-//           <img
-//             style={{
-//               width: "100%",
-//               height: "100%",
-//               borderTopLeftRadius: "2%",
-//               borderTopRightRadius: "2%",
-//             }}
-//             src={hero}
-//             alt=""
-//           />
-//         </div>
-//       </div>
-//       <div className="middlehome bg-red-70 h-full w-full flex justify-between">
-//         <div className="label h-[1000px]">
-//             <div className="flex"> 
-//             <span className=" text-3xl w-[64px] h-[100px] gap-[4px]">Explore by </span>
-//             <span className="text-[rgba(239,146,115,1)] text-3xl  ">category</span>
-//             </div>
-//             <div className="flex">
-//                 <span>See all jobs</span>
-//                 <img src={arrow} alt="" />
-//             </div>
-//             </div>
-         
-         
-         
-//          {/* <div className="blocks border-2 border-[#BEBEBE] border-solid h-[900px]">
-//              <div>
-
-//               </div>
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-          
-          
-          
-          
-//             </div> */}
-//        </div>
-//       {/* <div className="footer"></div> */}
-//    </div>
-//   );
-// };
-
-
+import { Link, useNavigate } from "react-router-dom";
 export const Homepage = () => {
   return (
     <div className="page bg-[#FEF9F8] w-full h-full px-[48px]">
@@ -165,12 +19,16 @@ export const Homepage = () => {
           <h1 className="mt-12 font-black text-3xl">GlobalSpeak</h1>
         </div>
         <div className="flex space-x-2 mt-8">
+          <Link to ="/">
           <button className="bg-white text-[rgba(239,146,115,1)] hover:bg-gray-200 px-4 py-2">
             Login
           </button>
+          </Link>
+           <Link to ="/register">
           <button className="bg-[rgba(239,146,115,1)] text-white px-4 py-2">
             Sign Up
           </button>
+          </Link>  
         </div>
       </div>
 

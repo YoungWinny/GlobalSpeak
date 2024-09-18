@@ -359,6 +359,7 @@ import scribble from "../../assets/images/scribblecolor.svg";
 import remote from "../../assets/images/remote-work-male.svg";
 import map from "../../assets/images/world-map-svgrepo-white.svg";
 import Swal from 'sweetalert2';
+import axios from 'axios';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -398,27 +399,57 @@ const Login = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (validateForm()) {
-      // Simulate login process
-      const isLoginSuccessful = (email === "test@example.com" && password === "password123");
+    // if (validateForm()) {
+    //   // Simulate login process
+    //   const isLoginSuccessful = (email === "test@example.com" && password === "password123");
 
-      if (isLoginSuccessful) {
+    //   if (isLoginSuccessful) {
+    //     Swal.fire({
+    //       title: 'Success!',
+    //       text: 'Login successful!',
+    //       icon: 'success',
+    //       confirmButtonText: 'Okay'
+    //     }).then(() => {
+    //       navigate('/dashboard'); // Redirect to the dashboard after login
+    //     });
+    //   } else {
+    //     Swal.fire({
+    //       title: 'Error!',
+    //       text: 'Email or password is incorrect!',
+    //       icon: 'error',
+    //       confirmButtonText: 'Try Again'
+    //     });
+    //   }
+    // }
+    if (validateForm()) {
+      axios.post("http://localhost:3000/auth/login", {
+        email,
+        password,
+      })
+      .then((response) => {
+        console.log('res', response);
+        
         Swal.fire({
-          title: 'Success!',
-          text: 'Login successful!',
+          title: 'Login Successfully!',
+          text: 'You have been Login successfully',
           icon: 'success',
-          confirmButtonText: 'Okay'
+          confirmButtonText: 'OK'
         }).then(() => {
-          navigate('/dashboard'); // Redirect to the dashboard after login
+          navigate("/dashboard");
         });
-      } else {
-        Swal.fire({
-          title: 'Error!',
-          text: 'Email or password is incorrect!',
-          icon: 'error',
-          confirmButtonText: 'Try Again'
-        });
-      }
+      })
+      .catch((error) => {
+        console.log("Error registering user", error);
+      });
+      
+      // Swal.fire({
+      //   title: 'Registered Successfully!',
+      //   text: 'You have been registered successfully',
+      //   icon: 'success',
+      //   confirmButtonText: 'OK'
+      // }).then(() => {
+      //   navigate("/");
+      // });
     }
   };
 

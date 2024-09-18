@@ -24,15 +24,17 @@ import ManageAccount from '../pages/appViews/dashboard pages/manageaccounts';
 import MakePayment from '../pages/appViews/dashboard pages/makepayment';
 import ManageUser from '../pages/appViews/dashboard pages/manageusers';
 import CreateJob from '../pages/appViews/dashboard pages/createjob';
+import ManageApplications from '../pages/appViews/dashboard pages/manageapplications';
+import JobDetails from '../pages/appViews/dashboard pages/jobdetails';
 
 
 
 export const router = createBrowserRouter(
     createRoutesFromElements(
         <Route element={<Layout />} >
-            <Route index path="/"   element={<Login />}></Route>
-            <Route path="/register" element={<Register />}></Route>
-             <Route  path="/homepage" element={<Homepage/>}></Route>
+             <Route index path="/homepage" element={<Homepage/>}></Route>
+             <Route  path="/"   element={<Login />}></Route>
+             <Route path="/register" element={<Register />}></Route>
              <Route  path="/profile" element={<Profile/>}></Route>
              <Route  path="/findjobs" element={<FindJobs/>}></Route>
              <Route  path="/testportal" element={<TestPortal/>}></Route>
@@ -41,16 +43,17 @@ export const router = createBrowserRouter(
 
 
              <Route path="/dashboard" element={<Dashboard/>}>
-                  <Route path="manageprofile" element={<ManageProfile/>}></Route> 
+                  <Route path="manageprofile" element={<ManageProfile/>}/>
                   <Route path="apply" element={<Apply/>}></Route> 
                   <Route path="uploadtasks" element={<UploadTasks/>}></Route>
                   <Route path="home" element={<Home/>}></Route> 
                   <Route path="viewtasks" element={<ViewTasks/>}></Route> 
+                  <Route path="manageapplications" element={<ManageApplications/>}></Route> 
                   <Route path="manageaccounts" element={<ManageAccount/>}></Route> 
                   <Route path="makepayment" element={<MakePayment/>}></Route> 
                   <Route path="manageusers" element={<ManageUser/>}></Route> 
                   <Route path="createjob" element={<CreateJob/>}></Route> 
-                
+                  <Route path="job" element={<JobDetails />} />
 
              </Route>
 
