@@ -1,101 +1,4 @@
-// import React, { useState } from 'react';
-// import Sidebar from '../appViews/Sidebar';
-// import Navbar from '../appViews/Navbar';
-
-// export const Dashboard = () => {
-//   const [darkMode, setDarkMode] = useState(false);
-
-//   const toggleDarkMode = () => {
-//     setDarkMode(!darkMode);
-//   };
-
-//   return (
-//     <div className={`${darkMode ? 'bg-gray-800 text-white' : 'bg-gray-100 text-black'} flex`}>
-//       <Sidebar />
-//       <div className="flex-1">
-//         <Navbar toggleDarkMode={toggleDarkMode} />
-//         <div className="p-4">
-//           <h2 className="text-xl font-bold">Welcome to the Dashboard!</h2>
-//           {/* Additional content goes here */}
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default Dashboard;
-
-
-
-// import React, { useState } from 'react';
-//  import Sidebar from '../appViews/Sidebar';
-//  import Navbar from '../appViews/Navbar';
-
-// export const Dashboard = () => {
-//   const [darkMode, setDarkMode] = useState(false);
-
-//   const toggleDarkMode = () => {
-//     setDarkMode(prevMode => !prevMode);
-//   };
-
-//   return (
-//     <div className={`flex ${darkMode ? 'bg-gray-900' : 'bg-gray-100'} min-h-screen`}>
-//       <Sidebar darkMode={darkMode} />
-//       <div className="flex-1">
-//         <Navbar toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
-//         <div className={`p-4 ${darkMode ? 'text-white' : 'text-black'}`}>
-//           <h1 className="text-2xl font-bold">Welcome to the Dashboard!</h1>
-//           {/* Additional content goes here */}
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default Dashboard;
-
-
-
-
-// import React, { useState } from 'react';
-// import Sidebar from '../appViews/Sidebar';
-// import Navbar from '../appViews/Navbar';
-
-// export const Dashboard = () => {
-//   const [darkMode, setDarkMode] = useState(false);
-//   const [currentPage, setCurrentPage] = useState('dashboard');
-
-//   const toggleDarkMode = () => {
-//     setDarkMode(prevMode => !prevMode);
-//   };
-
-//   const renderContent = () => {
-//     switch (currentPage) {
-//       case 'create-job':
-//         return <div className="p-4">Create Job Form Here</div>;
-//       default:
-//         return <div className="p-4">Welcome to your dashboard!</div>;
-//     }
-//   };
-
-//   return (
-//     <div className={`flex ${darkMode ? 'bg-gray-900' : 'bg-gray-100'} min-h-screen`}>
-//       <Sidebar darkMode={darkMode} />
-//       <div className="flex-1 flex flex-col">
-//         <Navbar toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
-//         <div className={`flex-1 p-4 ${darkMode ? 'text-white' : 'text-black'}`}>
-//           {renderContent()}
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default Dashboard;
-
-
-
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from '../appViews/Sidebar';
 import Navbar from '../appViews/Navbar';
@@ -116,6 +19,17 @@ import JobDetails from './dashboard pages/jobdetails';
 export const Dashboard = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [user, setUser] = useState(null);
+
+  useEffect(()=> {
+    const loggedUser = sessionStorage.getItem('user');
+    if(loggedUser){
+      setUser(JSON.parse(loggedUser))
+    }else{
+      window.location.href = '/'
+    }
+
+  },[])
 
   const toggleDarkMode = () => {
     setDarkMode(prevMode => !prevMode);
@@ -148,17 +62,19 @@ export const Dashboard = () => {
         return <CreateJob/> 
       case "/dashboard/manageapplications":
         return <ManageApplications/>
-      case "/dashboard/job":
-        return <JobDetails/>    
+      // case "/dashboard/job/":
+      //   return <JobDetails/>    
       default:
-        return <Home/>
+        if (location.pathname.includes("/dashboard/job"))
+          return <JobDetails />
+        return <Home />
      }
   }
 
   return (
-    <div className={`border-none border-2 border-red-600 flex h-full  ${darkMode ? 'bg-gray-100' :'bg-gray-100'}`}>
+    <div className={`border-none border-2 border-red-600 flex h-full  ${darkMode ? 'bg-white' :'bg-gray-100'}`}>
       
-     <div  className={`flex flex-col ${darkMode ? 'bg-gray-800 text-white' : 'bg-gray-900 text-black'} `}
+     <div  className={`flex flex-col ${darkMode ? 'bg-gray-800 text-white' : 'bg-[FEF9F8] text-black'} `}
         style={{ width: isCollapsed ? '75px' : '270px', height: '100vh', overflowY: 'auto' }}>
          <Sidebar darkMode={darkMode} isCollapsed={isCollapsed} toggleSidebar={toggleSidebar} />
       </div> 

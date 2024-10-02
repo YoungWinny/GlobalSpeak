@@ -17,7 +17,7 @@
     
 }
 .form{
-    height:80%;
+    height:90%;
     width:80%;
     /* border:3px solid green; */
     display:flex;
@@ -29,6 +29,10 @@
     /* padding-top:10px; */
     
      
+}
+form{
+    height: 65%;
+    width:100%;
 }
 .form__left{
     height: 98.8%;
@@ -75,11 +79,11 @@
 }
 .header img{
     width:100px;
-    height:90px;
+    height:70px;
     
 }
 .container{
-    height:90%;
+    height:80%;
     width:85%;
     /* border: 1px solid yellow; */
     display:flex;
@@ -162,7 +166,7 @@
 .end p{
     font-size: x-large;
 }
-/* button{
+button{
    color:white;
    border: none;
    width:150px;
@@ -170,9 +174,11 @@
    cursor: pointer;
    height: 45px;
    background-color:rgba(239,146,115,1);
+   margin-top: 5%;
+   margin-bottom: 2%;
 
-} */
-/* button:hover{
+} 
+ button:hover{
   background-color:rgba(239,146,115,1);
   opacity:85%;
-} */
+}

@@ -1,9 +1,40 @@
 import React, { useState } from 'react';
-import Dropzone from 'react-dropzone';
 import Swal from 'sweetalert2';
+import JobImage from "../../../assets/images/job.jpg"; // Import your image here
+import axios from 'axios';
+import { axiosInstance } from '../../../utils/axiosInstance';
+
+// Drag-and-Drop Component
+const DragAndDrop = ({ dragging, onDragOver, onDragLeave, onDrop, onBrowse }) => {
+  return (
+    <div
+      onDragOver={onDragOver}
+      onDragLeave={onDragLeave}
+      onDrop={onDrop}
+      className={`border-2 border-dashed h-[300px]  ${
+        dragging ? 'border-green-500' : 'border-gray-300'
+      } p-6 text-center cursor-pointer rounded-lg hover:bg-gray-50 transition h-1/2`}
+    >
+      <input
+        type="file"
+        className="hidden"
+        onChange={onBrowse}
+        multiple // Allow multiple files
+      />
+      <p className="text-gray-500">
+        Drag 'n' drop The Exam for here, or{' '}
+        <span className="text-orange-500 font-semibold cursor-pointer" onClick={() => document.querySelector('input[type="file"]').click()}>
+          browse
+        </span>{' '}
+        to upload
+      </p>
+    </div>
+  );
+};
 
 const CreateJob = () => {
   const [step, setStep] = useState(1);
+  const [dragging, setDragging] = useState(false);
   const [jobDetails, setJobDetails] = useState({
     title: '',
     category: '',
@@ -11,152 +42,286 @@ const CreateJob = () => {
     experience: '',
     location: '',
     salary: '',
+    description: '',
+    summary: '',
     files: [],
-    translationText: '',
   });
+  const [errors, setErrors] = useState({});
 
   // Handle next and previous steps
-  const nextStep = () => setStep(step + 1);
-  const prevStep = () => setStep(step - 1);
+  const nextStep = () => {
+    const validationErrors = validateStep();
+    if (Object.keys(validationErrors).length === 0) {
+      setStep((prev) => Math.min(prev + 1, 3));
+      setErrors({});
+    } else {
+      setErrors(validationErrors);
+    }
+  };
+
+  const prevStep = () => setStep((prev) => Math.max(prev - 1, 1));
 
   // Handle change for inputs
   const handleChange = (e) => {
     const { name, value } = e.target;
     setJobDetails({ ...jobDetails, [name]: value });
+    if (errors[name]) {
+      setErrors({ ...errors, [name]: null }); // Clear error on change
+    }
   };
 
-  // Handle file drop for Transcriber job title
-  const handleFileDrop = (acceptedFiles) => {
-    setJobDetails({ ...jobDetails, files: acceptedFiles });
+  // Validation function
+  const validateStep = () => {
+    const newErrors = {};
+    if (step === 1) {
+      if (!jobDetails.title) newErrors.title = "Job title is required.";
+      if (!jobDetails.category) newErrors.category = "Category is required.";
+      if (!jobDetails.jobType) newErrors.jobType = "Job type is required.";
+      if (!jobDetails.experience) newErrors.experience = "Experience is required.";
+      if (!jobDetails.location) newErrors.location = "Location is required.";
+      if (!jobDetails.salary) newErrors.salary = "Salary is required.";
+      if (!jobDetails.description) newErrors.description = "Description is required.";
+      if (!jobDetails.summary) newErrors.summary = "Summary is required.";
+    }
+    return newErrors;
   };
 
-  // Submit the form
-  const handleSubmit = () => {
-    // Backend logic goes here to create the job
-    console.log('Form Data:', jobDetails);
+  // Drag-and-drop functionality
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setDragging(true);
+  };
 
-    Swal.fire({
-      title: 'Job created successfully!',
-      text: 'Your job has been posted.',
-      icon: 'success',
-      confirmButtonText: 'OK',
-    });
+  const handleDragLeave = () => {
+    setDragging(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setDragging(false);
+    const files = Array.from(e.dataTransfer.files);
+    setJobDetails((prev) => ({ ...prev, files: [...prev.files, ...files] }));
+  };
+
+  const handleBrowseClick = (e) => {
+    const files = Array.from(e.target.files);
+    setJobDetails((prev) => ({ ...prev, files: [...prev.files, ...files] }));
+  };
+
+  // Submit the form || create job.
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
+    const validationErrors = validateStep();
+    if (Object.keys(validationErrors).length === 0) {
+      const formData = new FormData();
+      for (const key in jobDetails) {
+        formData.append(key, jobDetails[key]);
+      }
+      jobDetails.files.forEach(file => {
+        formData.append('files', file);
+      });
+  
+      axiosInstance.post('/api/jobs', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+      .then(response => {
+        console.log('Job created:', response.data);
+        Swal.fire({
+          title: 'Job created successfully!',
+          text: 'Your job has been posted.',
+          icon: 'success',
+          confirmButtonText: 'OK',
+        });
+      })
+      .catch(error => {
+        console.error('Error creating job:', error);
+      });
+    } else {
+      setErrors(validationErrors);
+    }
   };
 
   return (
-    <div className="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-md">
+    <div className="w-full h-full mx-auto bg-white p-10 rounded-lg shadow-lg overflow-y-scroll">
+      {/* Step Indicators */}
+      <div className="flex justify-between items-center mb-6">
+        {[1, 2, 3].map((s) => (
+          <div
+            key={s}
+            className={`flex-1 h-2 ${
+              step >= s ? 'bg-orange-500' : 'bg-gray-300'
+            } transition-all duration-300 mx-1 rounded-full`}
+          ></div>
+        ))}
+      </div>
+
       {step === 1 && (
-        <div>
-          <h2 className="text-2xl font-bold mb-4">Step 1: Post Job Details</h2>
-          <div className="mb-4">
-            <label className="block text-gray-700">Job Title</label>
-            <input
-              type="text"
-              name="title"
-              value={jobDetails.title}
-              onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded-md"
-              placeholder="Full stack developer"
-            />
+        <div className="flex flex-col md:flex-row items-start">
+          {/* Image Section */}
+          <div className="md:w-2/3 mb-6 md:mb-0">
+            <img src={JobImage} alt="Job" className="w-full h-auto rounded-lg shadow-2xl" />
           </div>
-          <div className="mb-4">
-            <label className="block text-gray-700">Category</label>
-            <input
-              type="text"
-              name="category"
-              value={jobDetails.category}
-              onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded-md"
-              placeholder="Information Technology"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700">Job Type</label>
-            <input
-              type="text"
-              name="jobType"
-              value={jobDetails.jobType}
-              onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded-md"
-              placeholder="Full-time"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700">Experience</label>
-            <input
-              type="text"
-              name="experience"
-              value={jobDetails.experience}
-              onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded-md"
-              placeholder="5+ years"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700">Location</label>
-            <input
-              type="text"
-              name="location"
-              value={jobDetails.location}
-              onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded-md"
-              placeholder="Yaounde, Cameroon"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700">Salary</label>
-            <input
-              type="text"
-              name="salary"
-              value={jobDetails.salary}
-              onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded-md"
-              placeholder="350,000"
-            />
-          </div>
-          <div className="flex justify-between">
-            <button
-              onClick={nextStep}
-              className="bg-blue-500 text-white px-4 py-2 rounded-md"
-            >
-              Next
-            </button>
+          {/* Form Section */}
+          <div className="md:w-2/3 pl-0 md:pl-6">
+            <h2 className="text-3xl font-bold mb-6 text-[rgba(239.146,115,1)]">Step 1: Job Details</h2>
+            <div className="mb-4">
+              <label className="block text-gray-700 mb-2 font-semibold">Job Title</label>
+              <input
+                type="text"
+                name="title"
+                value={jobDetails.title}
+                onChange={handleChange}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 transition"
+                placeholder="Translator"
+              />
+              {errors.title && <p className="text-red-500">{errors.title}</p>}
+            </div>
+            <div className="mb-4">
+              <label className="block text-gray-700 mb-2 font-semibold">Category</label>
+              <input
+                type="text"
+                name="category"
+                value={jobDetails.category}
+                onChange={handleChange}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 transition"
+                placeholder="Vernacular languages"
+              />
+              {errors.category && <p className="text-red-500">{errors.category}</p>}
+            </div>
+            <div className="mb-4">
+              <label className="block text-gray-700 mb-2 font-semibold">Job Type</label>
+              <input
+                type="text"
+                name="jobType"
+                value={jobDetails.jobType}
+                onChange={handleChange}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 transition"
+                placeholder="Freelance"
+              />
+              {errors.jobType && <p className="text-red-500">{errors.jobType}</p>}
+            </div>
+            <div className="mb-4">
+              <label className="block text-gray-700 mb-2 font-semibold">Description</label>
+              <input
+                type="text"
+                name="description"
+                value={jobDetails.description}
+                onChange={handleChange}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 transition"
+                placeholder="Brief description here"
+              />
+              {errors.description && <p className="text-red-500">{errors.description}</p>}
+            </div>
+            <div className="mb-4">
+              <label className="block text-gray-700 mb-2 font-semibold">Experience</label>
+              <input
+                type="text"
+                name="experience"
+                value={jobDetails.experience}
+                onChange={handleChange}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 transition"
+                placeholder="5+ years"
+              />
+              {errors.experience && <p className="text-red-500">{errors.experience}</p>}
+            </div>
+            <div className="mb-4">
+              <label className="block text-gray-700 mb-2 font-semibold">Location</label>
+              <input
+                type="text"
+                name="location"
+                value={jobDetails.location}
+                onChange={handleChange}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 transition"
+                placeholder="Yaounde, Cameroon"
+              />
+              {errors.location && <p className="text-red-500">{errors.location}</p>}
+            </div>
+            <div className="mb-4">
+              <label className="block text-gray-700 mb-2 font-semibold">Salary</label>
+              <input
+                type="text"
+                name="salary"
+                value={jobDetails.salary}
+                onChange={handleChange}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 transition"
+                placeholder="350,000"
+              />
+              {errors.salary && <p className="text-red-500">{errors.salary}</p>}
+            </div>
+            <div className="mb-4">
+              <label className="block text-gray-700 mb-2 font-semibold">Summary</label>
+              <input
+                type="text"
+                name="summary"
+                value={jobDetails.summary}
+                onChange={handleChange}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 transition"
+                placeholder="Global summary here"
+              />
+              {errors.summary && <p className="text-red-500">{errors.summary}</p>}
+            </div>
+            <div className="flex justify-between mt-6">
+              <button
+                disabled={step === 1}
+                onClick={prevStep}
+                className={`px-6 py-2 rounded-md transition ${
+                  step === 1
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'bg-gray-500 text-white hover:bg-gray-600'
+                }`}
+              >
+                Previous
+              </button>
+              <button
+                onClick={nextStep}
+                className="bg-[rgba(239.146,115,1)] hover:bg-[rgba(239.146,115,1)] text-white px-6 py-2 rounded-md transition"
+              >
+                Next
+              </button>
+            </div>
           </div>
         </div>
       )}
 
-      {step === 2 && jobDetails.title.toLowerCase() === 'transcriber' && (
+      {step === 2 && (
         <div>
-          <h2 className="text-2xl font-bold mb-4">Step 2: Upload Files for Transcription</h2>
-          <Dropzone onDrop={handleFileDrop}>
-            {({ getRootProps, getInputProps }) => (
-              <div
-                {...getRootProps()}
-                className="border-2 border-dashed border-gray-300 p-8 text-center cursor-pointer"
-              >
-                <input {...getInputProps()} />
-                <p>Drag 'n' drop files here, or click to select files</p>
-              </div>
-            )}
-          </Dropzone>
+          <h2 className="text-3xl font-bold mb-6 text-[rgba(239.146,115,1)]">Step 2: Upload The Exam for this Job</h2>
+          <div className="flex items-center mb-4">
+            <span className="bg-green-500 text-white px-3 py-1 rounded-full mr-2">
+              Step 2
+            </span>
+            <h3 className="text-lg font-bold">Upload The Exam for this Job</h3>
+          </div>
+          <DragAndDrop
+            dragging={dragging}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            onBrowse={handleBrowseClick}
+          />
           <div className="mt-4">
-            <h4>Uploaded Files:</h4>
-            <ul>
+            <h4 className="font-semibold text-gray-600">Uploaded Files:</h4>
+            <ul className="mt-2">
               {jobDetails.files.map((file, index) => (
-                <li key={index}>{file.name}</li>
+                <li key={index} className="text-gray-700">
+                  {file.name}
+                </li>
               ))}
             </ul>
           </div>
-          <div className="flex justify-between mt-4">
+          <div className="flex justify-between mt-6">
             <button
               onClick={prevStep}
-              className="bg-gray-500 text-white px-4 py-2 rounded-md"
+              className="bg-gray-500 text-white px-6 py-2 rounded-md hover:bg-gray-600 transition"
             >
               Previous
             </button>
             <button
               onClick={nextStep}
-              className="bg-blue-500 text-white px-4 py-2 rounded-md"
+              className="[rgba(239.146,115,1)] hover: [rgba(239.146,115,1) opacity-60] text-white px-6 py-2 rounded-md transition"
             >
               Next
             </button>
@@ -166,29 +331,56 @@ const CreateJob = () => {
 
       {step === 3 && (
         <div>
-          <h2 className="text-2xl font-bold mb-4">Step 3: Translation</h2>
+          <h2 className="text-3xl font-bold mb-6 text-[rgba(239.146,115,1)]">Step 3: Review and Submit</h2>
           <div className="mb-4">
-            <label className="block text-gray-700">Enter text to be translated here:</label>
-            <textarea
-              name="translationText"
-              value={jobDetails.translationText}
-              onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded-md"
-              placeholder="Enter the text to be translated here..."
-            ></textarea>
+            <h3 className="text-lg font-semibold">Review Your Details:</h3>
+            <p className="text-gray-700">
+              <strong>Job Title:</strong> {jobDetails.title}
+            </p>
+            <p className="text-gray-700">
+              <strong>Category:</strong> {jobDetails.category}
+            </p>
+            <p className="text-gray-700">
+              <strong>Job Type:</strong> {jobDetails.jobType}
+            </p>
+            <p className="text-gray-700">
+              <strong>Experience:</strong> {jobDetails.experience}
+            </p>
+            <p className="text-gray-700">
+              <strong>Description:</strong> {jobDetails.description}
+            </p>
+            <p className="text-gray-700">
+              <strong>Summary:</strong> {jobDetails.summary}
+            </p>
+            <p className="text-gray-700">
+              <strong>Location:</strong> {jobDetails.location}
+            </p>
+            <p className="text-gray-700">
+              <strong>Salary:</strong> {jobDetails.salary}
+            </p>
+            <div className="mt-4">
+              <h4 className="font-semibold text-gray-600">Uploaded Exam:</h4>
+              <ul className="mt-2">
+                {jobDetails.files.map((file, index) => (
+                  <li key={index} className="text-gray-700">
+                    {file.name}
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
-          <div className="flex justify-between mt-4">
+          <div className="flex justify-between mt-6">
             <button
               onClick={prevStep}
-              className="bg-gray-500 text-white px-4 py-2 rounded-md"
+              className="bg-gray-500 text-white px-6 py-2 rounded-md hover:bg-gray-600 transition"
             >
               Previous
             </button>
             <button
               onClick={handleSubmit}
-              className="bg-green-500 text-white px-4 py-2 rounded-md"
+              className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-md transition"
             >
-              Submit
+              Create Job
             </button>
           </div>
         </div>
@@ -198,3 +390,4 @@ const CreateJob = () => {
 };
 
 export default CreateJob;
+

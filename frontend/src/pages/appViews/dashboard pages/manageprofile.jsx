@@ -190,7 +190,7 @@ export const ManageProfile = () => {
 
         <section className="text-center mb-8">
           <button className="bg-[rgba(239,146,115,1)] text-white px-8 py-3 rounded-lg">
-            SEARCH
+            Submit
           </button>
         </section>
       </div>

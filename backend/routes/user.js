@@ -47,8 +47,8 @@ router.post('/login', async (req, res) => {
 
     const token = jwt.sign({ email: user.email }, KEY, { expiresIn: '1hr' })
     res.cookie('token', token, { httpOnly: true, maxAge: 36000 })
-    console.log("Login successful")
-    return res.json({ status: true, message: "login successfully" })
+    
+    return res.json({ status: true, message: "login successfully", user })
 })
 
 router.post('/forgot-password', async (req, res) => {

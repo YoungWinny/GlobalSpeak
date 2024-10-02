@@ -26,7 +26,7 @@ const Login = async (req, res) => {
   const{fullName,email,password} = req.body;
   const user = User.findOne({email})
   if (user){
-     return res.json ({message:"user already exists"})
+     return res.json({message:"user already exists", user})
   }
 
   const saltRound = 10

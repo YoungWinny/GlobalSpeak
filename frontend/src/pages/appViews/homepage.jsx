@@ -1,10 +1,11 @@
 import hero from "../../assets/images/hero-transformed.jpeg";
 import search from "../../assets/images/search-svgrepo-com.svg";
 import location from "../../assets/images/location-pin-svgrepo-com.svg";
-import arrow from"../../assets/images/arrow-right-svgrepo-com-5.svg";
+import arrow from "../../assets/images/arrow-right-svgrepo-com-5.svg";
 import mapImage from "../../assets/images/Mapsicle Map.png";
 import translate from "../../assets/images/translation-icon-translate-language-svgrepo-com.svg";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+
 export const Homepage = () => {
   return (
     <div className="page bg-[#FEF9F8] w-full h-full px-[48px]">
@@ -19,16 +20,16 @@ export const Homepage = () => {
           <h1 className="mt-12 font-black text-3xl">GlobalSpeak</h1>
         </div>
         <div className="flex space-x-2 mt-8">
-          <Link to ="/">
-          <button className="bg-white text-[rgba(239,146,115,1)] hover:bg-gray-200 px-4 py-2">
-            Login
-          </button>
+          <Link to="/">
+            <button className="bg-white text-[rgba(239,146,115,1)] hover:bg-gray-200 px-4 py-2">
+              Login
+            </button>
           </Link>
-           <Link to ="/register">
-          <button className="bg-[rgba(239,146,115,1)] text-white px-4 py-2">
-            Sign Up
-          </button>
-          </Link>  
+          <Link to="/register">
+            <button className="bg-[rgba(239,146,115,1)] text-white px-4 py-2">
+              Sign Up
+            </button>
+          </Link>
         </div>
       </div>
 
@@ -108,7 +109,7 @@ export const Homepage = () => {
             <img src={arrow} alt="" className="ml-2" />
           </span>
         </div>
-        <div className="grid grid-cols-4  gap-4 mt-8 px-4">
+        <div className="grid grid-cols-4 gap-4 mt-8 px-4">
           {[
             "Tech",
             "Design",
@@ -179,24 +180,23 @@ export const Homepage = () => {
       {/* Map Section */}
       <div className=" bg-[white] w-full h-[47vh] flex flex-row items-center !gap-[0px] justify-center">
         <div className="w-1/2">
-        <h2 className="text-4xl font-bold mb-4">Get in touch</h2>
-            <p className="text-lg w-2/5 mb-8">
-              Our dedicated team is always ready to assist you with any
-              questions you may have regarding our linguistic portal website.
-            </p>
-          </div>
-          <img
-              src={mapImage}
-              alt="Map"
-              className="rounded-lg shadow-md"
-            />      
+          <h2 className="text-4xl font-bold mb-4">Get in touch</h2>
+          <p className="text-lg w-2/5 mb-8">
+            Our dedicated team is always ready to assist you with any
+            questions you may have regarding our linguistic portal website.
+          </p>
+        </div>
+        <img
+          src={mapImage}
+          alt="Map"
+          className="rounded-lg shadow-md"
+        />
       </div>
 
       {/* Get in Touch Section */}
-      <div className="contact-section bg-[#FEF9F8] py-12 flex justify-center mt-[20px]" >
+      <div className="contact-section bg-[#FEF9F8] py-12 flex justify-center mt-[20px]">
         <div className="max-w-6xl w-full bg-white shadow-lg rounded-lg flex relative">
           <div className="w-1/2 p-8">
-            
             <div className="bg-white p-6 rounded-lg shadow-md">
               <h3 className="font-bold mb-4">Send us a message</h3>
               <form className="space-y-4">
@@ -283,9 +283,70 @@ export const Homepage = () => {
               </a>
             </div>
           </div>
-
         </div>
       </div>
-    </div>
-  );
+ 
+ {/* Footer Section */}
+ <div className="footer bg-[#FEF9F8] py-12 relative">
+ <div className="max-w-6xl mx-auto px-4 flex justify-between items-start">
+   {/* Logo and Description */}
+   <div className="w-1/4">
+     <div className="mb-4 h-16"></div> {/* Placeholder for logo */}
+     <p className="text-gray-600">
+       The dynamic nature of the IT world means that our opportunities
+       change rapidly, so make sure you keep your profile up-to-date in
+       order to receive notifications on positions that suit your
+       profile.
+     </p>
+   </div>
+
+   {/* Columns */}
+   <div className="w-1/2 flex justify-between">
+     {Array(3).fill().map((_, colIndex) => (
+       <div key={colIndex}>
+         <h4 className="font-bold mb-4">Norem ipsum dolor</h4>
+         {Array(4).fill().map((_, rowIndex) => (
+           <p className="text-gray-600" key={rowIndex}>
+             Worem ipsum dolor sit amet, consectetur
+           </p>
+         ))}
+       </div>
+     ))}
+   </div>
+
+   {/* Newsletter Signup */}
+   <div className="w-1/4">
+     <h4 className="font-bold mb-4">
+       Get job <span className="text-[rgba(239,146,115,1)]">notifications</span>
+     </h4>
+     <form className="flex items-center">
+       <input
+         type="email"
+         placeholder="Enter your email"
+         className="flex-grow border-b-2 border-gray-300 focus:outline-none py-2"
+       />
+       <button className="bg-[rgba(239,146,115,1)] text-white px-4 py-2 ml-2 rounded-md">
+         SEND
+       </button>
+     </form>
+   </div>
+ </div>
+
+ {/* Footer Bottom Text */}
+ <div className="text-center mt-8 text-gray-600">
+   ©2023 THEKAFE.ai . All rights reserved • Privacy Policy • Terms and Conditions
+ </div>
+</div>
+</div>
+);
 };
+
+export default Homepage;
+
+
+
+
+
+
+
+     

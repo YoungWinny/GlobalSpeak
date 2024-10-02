@@ -13,10 +13,14 @@
     "@builder.io/dev-tools": "^1.0.19",
     "@builder.io/react": "^5.0.1",
     "@builder.io/sdk": "^3.0.1",
+    "animate.css": "^4.1.1",
     "axios": "^1.7.7",
+    "chart.js": "^4.4.4",
+    "dropzone": "^6.0.0-beta.2",
     "form": "^0.2.4",
     "react": "^18.3.1",
     "react-beautiful-dnd": "^13.1.1",
+    "react-chartjs-2": "^5.2.0",
     "react-dom": "^18.3.1",
     "react-dropzone": "^14.2.3",
     "react-hook": "^0.0.1",
@@ -28,7 +32,7 @@
     "react-toastify": "^10.0.5",
     "sweet-alert": "^2.0.5",
     "sweetalert": "^2.1.2",
-    "sweetalert2": "^11.6.13"
+    "sweetalert2": "^11.14.0"
   },
   "devDependencies": {
     "@types/react": "^18.3.3",

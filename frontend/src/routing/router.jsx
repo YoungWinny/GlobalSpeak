@@ -26,6 +26,7 @@ import ManageUser from '../pages/appViews/dashboard pages/manageusers';
 import CreateJob from '../pages/appViews/dashboard pages/createjob';
 import ManageApplications from '../pages/appViews/dashboard pages/manageapplications';
 import JobDetails from '../pages/appViews/dashboard pages/jobdetails';
+import QuizApp from "../pages/appViews/dashboard pages/mcq";
 
 
 
@@ -33,13 +34,13 @@ export const router = createBrowserRouter(
     createRoutesFromElements(
         <Route element={<Layout />} >
              <Route index path="/homepage" element={<Homepage/>}></Route>
-             <Route  path="/"   element={<Login />}></Route>
+             <Route path="/" element={<Login />}></Route>
              <Route path="/register" element={<Register />}></Route>
              <Route  path="/profile" element={<Profile/>}></Route>
              <Route  path="/findjobs" element={<FindJobs/>}></Route>
              <Route  path="/testportal" element={<TestPortal/>}></Route>
              <Route path="/payment" element={<PaymentInterface/>}></Route>
-
+             <Route path="/mcq" element={<QuizApp/>}></Route>
 
 
              <Route path="/dashboard" element={<Dashboard/>}>
@@ -53,11 +54,12 @@ export const router = createBrowserRouter(
                   <Route path="makepayment" element={<MakePayment/>}></Route> 
                   <Route path="manageusers" element={<ManageUser/>}></Route> 
                   <Route path="createjob" element={<CreateJob/>}></Route> 
-                  <Route path="job" element={<JobDetails />} />
+                  <Route path="job/:id" element={<JobDetails />}>
+                  {/* <Route path="testportal" element={<TestPortal/>}></Route> */}
+                  </Route>
 
              </Route>
 
-             
         </Route>
     )
 );

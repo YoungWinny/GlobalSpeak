@@ -3,6 +3,7 @@ import dotenv from 'dotenv'
 import bcrypt from 'bcrypt'
 dotenv.config()
 import router from './routes/user.js'
+import jobRoutes from './routes/jobRoutes.js'
 import cors from 'cors'
 import mongoose from 'mongoose'
 //Importing dbConnector
@@ -25,7 +26,7 @@ app.use(cors({origin:'*'}))
 app.use(express.urlencoded({extended:true}))
 
 app.use('/auth',router)
-
+app.use('/api',jobRoutes)
 
 
 app.listen(process.env.PORT, () => {

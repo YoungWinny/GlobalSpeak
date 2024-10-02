@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import Swal from 'sweetalert2';
 import { FaTrash } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 
 const ManageUser = () => {
   const [users, setUsers] = useState([
@@ -78,7 +79,14 @@ const ManageUser = () => {
   return (
     <div className="flex flex-col md:flex-row">
       <div className="w-full md:w-full p-4">
-        <h1 className="text-2xl font-bold mb-4">User Management</h1>
+        <div className='w-full py-2 flex justify-between items-center'>
+          <h1 className="text-2xl font-bold mb-4">User Management</h1>
+
+          <Link to="/dashboard/manageaccounts" className={'w-40 h-12 bg-[#e8744d] hover:bg-[#f19f81] rounded flex justify-center items-center text-lg text-white'}>
+            <span className={''}>Accounts</span>
+          </Link>
+          
+        </div>
         <table className="min-w-full bg-white border border-gray-300">
           <thead>
             <tr>
@@ -93,7 +101,7 @@ const ManageUser = () => {
           </thead>
           <tbody>
             {currentUsers.map((user) => (
-              <tr key={user.id} className="hover:bg-gray-100">
+              <tr key={user.id} className="hover:bg-gray-100 py-4">
                 <td className="py-2 px-4 border-b">
                   <input 
                     type="checkbox"
@@ -134,7 +142,7 @@ const ManageUser = () => {
                 </td>
                 <td className="py-2 px-4 border-b">{user.status}</td>
                 <td className="py-2 px-4 border-b">{user.lastActivity}</td>
-                <td className="py-2 px-4 border-b">
+                <td className="py-2 px-4 border-b flex justify-evenly items-center">
                   <button 
                     className="text-green-500 hover:underline mr-2" 
                     onClick={() => handleAction('activate')}

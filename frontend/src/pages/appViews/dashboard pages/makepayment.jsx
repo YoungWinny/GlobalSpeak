@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 // import mtnLogo from '../../assets/images/mtn.jpeg';  // Replace with actual path
 // import orangeLogo from '../../assets/images/orange.jpeg'; // Replace with actual path
 import logo from "../../../assets/images/headphone-5-svgrepo-com.svg";
+import Swal from 'sweetalert2';
 
 export const MakePayment = () => {
   const [receiverNumber, setReceiverNumber] = useState('');
@@ -11,7 +12,12 @@ export const MakePayment = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    alert(`Payment of ${amount} to ${receiverNumber} processed!`);
+    Swal.fire({
+      title: 'Payment made successfully!',
+      text:(`Payment of ${amount} to ${receiverNumber} processed!`),
+      icon: 'success',
+      confirmButtonText: 'OK',
+    });
   };
 
   return (
@@ -85,8 +91,8 @@ export const MakePayment = () => {
           </form>
         </div>
 
-        {/* Right Side Image
-        <div className="flex items-center justify-center">
+        {/* Right Side Image */}
+        {/* <div className="flex items-center justify-center">
           <img src={orangeLogo} alt="Orange Money Logo" className="w-32 mx-auto" />
         </div> */}
       </div>

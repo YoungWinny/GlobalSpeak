@@ -72,15 +72,16 @@ const ManageApplications = () => {
             <div className="flex justify-between">
               <button
                 onClick={() => handleDecision(application.id, "Accepted")}
-                className="bg-[rgba(239,146,115,1)] text-white px-4 py-2 rounded-md flex items-center gap-2"
+                className="bg-[#e8744d] text-white px-4 py-2 rounded-md flex items-center gap-2"
               >
                 <FaCheck /> Accept
               </button>
               <button
                 onClick={() => handleDecision(application.id, "Rejected")}
-                className="bg-[rgba(185,185,185,1)] text-white px-4 py-2 rounded-md flex items-center gap-2"
+                className="bg-red-500 text-white px-4 py-2 rounded-md flex items-center gap-2"
               >
-                <FaTimes /> Reject
+                <FaTimes /> 
+                <span>Reject</span>
               </button>
             </div>
           </div>

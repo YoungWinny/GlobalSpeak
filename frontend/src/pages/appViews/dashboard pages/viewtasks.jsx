@@ -111,7 +111,7 @@ const ViewTasks = () => {
 
 // Modal Component
 const Modal = ({ onClose }) => (
-  <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50">
+  <div className="fixed inset-0 bg-black bg-opacity-65 flex justify-center items-center z-50">
     <div className="bg-white p-6 rounded-lg relative shadow-2xl max-w-2xl w-full">
       <button
         className="absolute top-3 right-3 text-black text-2xl outline-"
@@ -144,7 +144,7 @@ const Modal = ({ onClose }) => (
       </div>
 
       <textarea
-        className="w-full p-2 bg-gray-800 rounded text-sm mb-4 text-black"
+        className="w-full p-2 bg-[#BEBEBE] rounded text-sm mb-4 text-black"
         placeholder="Write a comment..."
         rows="6"
       ></textarea>
@@ -173,11 +173,11 @@ const Column = ({ title, cards, onAddCard, onEdit, columnName, handleNextPage, h
   <Droppable droppableId={columnName}>
     {(provided) => (
       <div
-        className="bg-gray-800 rounded-lg w-80 p-4 flex-shrink-0"
+        className="bg-whitesmoke overflow-y-scroll rounded-2xl w-80 p-4 shadow-lg flex-shrink-0 "
         {...provided.droppableProps}
         ref={provided.innerRef}
       >
-        <h2 className="text-lg font-bold mb-3 text-white capitalize">{title}</h2>
+        <h2 className="text-lg font-bold mb-3 text-black capitalize">{title}</h2>
         <div className="flex-grow space-y-4">
           {cards.map((card, index) => (
             <Card key={card.id} card={card} index={index} onEdit={onEdit} />
@@ -189,7 +189,7 @@ const Column = ({ title, cards, onAddCard, onEdit, columnName, handleNextPage, h
           <button onClick={handlePrevPage} className="bg-gray-700 px-4 py-2 rounded text-white" disabled={currentPage === 1}>
             Prev
           </button>
-          <button onClick={handleNextPage} className="bg-gray-700 px-4 py-2 rounded text-white" disabled={currentPage === totalPages}>
+          <button onClick={handleNextPage} className="bg-[rgba(239,146,115,1)] px-4 py-2 rounded text-white" disabled={currentPage === totalPages}>
             Next
           </button>
         </div>
@@ -203,7 +203,7 @@ const Card = ({ card, index, onEdit }) => (
   <Draggable draggableId={String(card.id)} index={index}>
     {(provided) => (
       <div
-        className="bg-gray-700 rounded-lg p-4 text-white"
+        className="bg-[rgba(239,146,115,1)] rounded-lg p-4 text-white"
         {...provided.draggableProps}
         {...provided.dragHandleProps}
         ref={provided.innerRef}
@@ -212,7 +212,7 @@ const Card = ({ card, index, onEdit }) => (
           <h3 className="text-sm font-semibold">{card.title}</h3>
           <FiEdit2 className="text-white cursor-pointer" onClick={onEdit} />
         </div>
-        <p className="text-xs text-gray-300">{card.dueDate}</p>
+        <p className="text-xs text-white-300">{card.dueDate}</p>
         {card.image && (
           <img
             src={card.image}
