@@ -1,76 +1,8 @@
-// import Job from "../models/job.js";
-
-// // Create a new job
-// export const createJob = async (req, res) => {
-//   const { title, description, status } = req.body;
-  
-//   try {
-//     const newJob = await Job.create(req.body);
-//     res.status(201).json(newJob);
-//   } catch (err) {
-//     res.status(400).json({ error: err.message });
-//   }
-// };
-
-// // Update a job
-// export const updateJob = async (req, res) => {
-//   const { jobId } = req.params;
-//   const { title, description, status } = req.body;
-  
-//   try {
-//     const updatedJob = await Job.findByIdAndUpdate(
-//       jobId,
-//       { title, description, status },
-//       { new: true }
-//     );
-//     res.status(200).json(updatedJob);
-//   } catch (err) {
-//     res.status(400).json({ error: err.message });
-//   }
-// };
-
-// // Get all jobs
-// export const getAllJobs = async (req, res) => {
-//   try {
-//     const jobs = await Job.find();
-//     res.status(200).json(jobs);
-//   } catch (err) {
-//     res.status(400).json({ error: err.message });
-//   }
-// };
-
-// // Delete a job
-// export const deleteJob = async (req, res) => {
-//   const { jobId } = req.params;
-  
-//   // try {
-//   //   await Job.findByIdAndDelete(jobId);
-//   //   res.status(200).json({ message: 'Job deleted successfully' });
-//   // } catch (err) {
-//   //   res.status(400).json({ error: err.message });
-//   // }
-
-//   try {
-//     const deletedJob = await Job.findByIdAndDelete(req.params.id);
-//     if (!deletedJob) return res.status(404).json({ error: 'Job not found' });
-//     res.status(200).json({ message: 'Job deleted successfully' });
-//   } catch (error) {
-//     res.status(400).json({ error: error.message });
-//   }
-
-// };
-
-
-
-
-
-
-
-
 import Job from "../models/job.js";
 import multer from 'multer';
 import fs from 'fs';
-import path from 'path';
+import path from 'path'
+const __dirname = path.dirname(import.meta.url);
 
 // Get a single job by ID
 export const getJobById = async (req, res) => {
@@ -160,6 +92,19 @@ export const updateJob = async (req, res) => {
 export const getAllJobs = async (req, res) => {
   try {
     const jobs = await Job.find();
+    jobs.forEach((job)=>{
+     const files = job?.files?.map((filename) => {
+      let filePath = '';
+      if(filename){
+        filePath = path.join(__dirname.replace('controllers',''), filename);
+      }
+
+      return filePath;
+     })
+
+     job.files = files;
+    })
+
     res.status(200).json(jobs);
   } catch (err) {
     console.error("Error fetching jobs:", err);

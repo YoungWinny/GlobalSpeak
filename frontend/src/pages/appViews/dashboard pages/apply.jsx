@@ -6,6 +6,14 @@ import transcription from "../../../assets/images/transcription.svg";
 import { Link, useNavigate } from "react-router-dom";
 import { axiosInstance } from "../../../utils/axiosInstance";
 
+
+function isImage(filename) {
+  const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'];
+  const extension = filename.split('.').pop().toLowerCase();
+
+  return imageExtensions.includes(extension);
+}
+
 // Pagination Controls Component
 const PaginationControls = ({ currentPage, totalPages, onPageChange }) => {
   return (
@@ -31,6 +39,13 @@ const PaginationControls = ({ currentPage, totalPages, onPageChange }) => {
 
 // Job Card Component
 const JobCard = ({ job, index }) => {
+  let image = null;
+   job?.files?.forEach((filename)=>{
+    if(filename && isImage(filename)){
+      image = filename;
+    }
+  }) 
+
   const navigate = useNavigate();
 
   const handleApplyClick = () => {
@@ -106,6 +121,7 @@ export const Apply = () => {
   const indexOfFirstJob = indexOfLastJob - jobsPerPage;
   const currentJobs = jobs.slice(indexOfFirstJob, indexOfLastJob);
   const totalPages = Math.ceil(jobs.length / jobsPerPage);
+  
 
   // Handle page change for pagination
   const handlePageChange = (page) => {
@@ -213,7 +229,9 @@ export const Apply = () => {
             {/* List of Job Cards */}
             <ul className="space-y-4">
               {currentJobs.map((job, index) => (
-                <JobCard key={index} job={job} index={index + 1} />
+                <JobCard key={index}
+                 job={job} index={index + 1} 
+                 />
               ))}
             </ul>
 

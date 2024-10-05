@@ -3,8 +3,114 @@ import Swal from 'sweetalert2';
 import JobImage from "../../../assets/images/job.jpg"; // Import your image here
 import axios from 'axios';
 import { axiosInstance } from '../../../utils/axiosInstance';
+import { FiX } from "react-icons/fi";
 
-// Drag-and-Drop Component
+// my modal to set the mcq
+const Modal = ({ onClose, onSave }) => {
+  const [currentQuestion, setCurrentQuestion] = useState(1);
+  const [questions, setQuestions] = useState([{ question: "", options: ["", "", "", ""] }]);
+
+  const handleQuestionChange = (e) => {
+    const newQuestions = [...questions];
+    newQuestions[currentQuestion - 1].question = e.target.value;
+    setQuestions(newQuestions);
+  };
+
+  const handleOptionChange = (e, optionIndex) => {
+    const newQuestions = [...questions];
+    newQuestions[currentQuestion - 1].options[optionIndex] = e.target.value;
+    setQuestions(newQuestions);
+  };
+
+  const nextQuestion = () => {
+    if (currentQuestion < questions.length) {
+      setCurrentQuestion(currentQuestion + 1);
+    } else {
+      setQuestions([...questions, { question: "", options: ["", "", "", ""] }]);
+      setCurrentQuestion(currentQuestion + 1);
+    }
+  };
+
+  const prevQuestion = () => {
+    if (currentQuestion > 1) {
+      setCurrentQuestion(currentQuestion - 1);
+    }
+  };
+
+  const saveQuestions = () => {
+    onSave(questions); // Pass questions to parent component
+    onClose(); // Close modal after saving
+    Swal.fire("Success!", "MCQ questions have been set.", "success");
+  };
+
+return (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+    <div className="bg-white p-6 rounded-lg relative shadow-2xl max-w-lg w-full">
+      <button
+        className="absolute top-3 right-3 text-black text-2xl"
+        onClick={onClose}
+      >
+        <FiX />
+      </button>
+      <h2 className="text-2xl font-bold mb-4">Set MCQ Questions</h2>
+
+      <div className="mb-4">
+        <label className="block font-semibold">Question {currentQuestion}</label>
+        <input
+          type="text"
+          value={questions[currentQuestion - 1]?.question || ""}
+          onChange={handleQuestionChange}
+          className="w-full p-2 border border-gray-300 rounded-lg mb-3"
+          placeholder="Enter your question"
+        />
+        <div>
+          {questions[currentQuestion - 1]?.options.map((option, i) => (
+            <div key={i} className="mb-2">
+              <label className="block text-gray-700">Option {i + 1}</label>
+              <input
+                type="text"
+                value={option}
+                onChange={(e) => handleOptionChange(e, i)}
+                className="w-full p-2 border border-gray-300 rounded-lg"
+                placeholder={`Option ${i + 1}`}
+              />   
+            </div>
+            
+          ))}
+        </div>
+      </div>
+
+      <div className="flex justify-between items-center mt-4">
+        <button
+          onClick={prevQuestion}
+          disabled={currentQuestion === 1}
+          className={`px-4 py-2 bg-gray-400 text-white rounded-lg ${currentQuestion === 1 && "opacity-50 cursor-not-allowed"}`}
+        >
+          Previous
+        </button>
+        <button
+          onClick={nextQuestion}
+          className="px-4 py-2 bg-blue-500 text-white rounded-lg"
+        >
+          Next
+        </button>
+      </div>
+
+      <div className="mt-6">
+        <button
+          onClick={saveQuestions}
+          className="w-full py-2 bg-green-500 text-white rounded-lg"
+        >
+          OK
+        </button>
+      </div>
+    </div>
+  </div>
+);
+};
+
+
+// // Drag-and-Drop Component
 const DragAndDrop = ({ dragging, onDragOver, onDragLeave, onDrop, onBrowse }) => {
   return (
     <div
@@ -33,6 +139,12 @@ const DragAndDrop = ({ dragging, onDragOver, onDragLeave, onDrop, onBrowse }) =>
 };
 
 const CreateJob = () => {
+  const [showModal, setShowModal] = useState(false);
+  const [questions, setQuestions] = useState([]);
+
+  const openModal = () => setShowModal(true);
+  const closeModal = () => setShowModal(false);
+  const saveQuestions = (questions) => setQuestions(questions);
   const [step, setStep] = useState(1);
   const [dragging, setDragging] = useState(false);
   const [jobDetails, setJobDetails] = useState({
@@ -143,8 +255,7 @@ const CreateJob = () => {
       setErrors(validationErrors);
     }
   };
-
-  return (
+  return(
     <div className="w-full h-full mx-auto bg-white p-10 rounded-lg shadow-lg overflow-y-scroll">
       {/* Step Indicators */}
       <div className="flex justify-between items-center mb-6">
@@ -321,7 +432,7 @@ const CreateJob = () => {
             </button>
             <button
               onClick={nextStep}
-              className="[rgba(239.146,115,1)] hover: [rgba(239.146,115,1) opacity-60] text-white px-6 py-2 rounded-md transition"
+              className="bg-[#ef7301] hover: [rgba(239.146,115,1) opacity-60] text-white px-6 py-2 rounded-md transition"
             >
               Next
             </button>
@@ -376,18 +487,31 @@ const CreateJob = () => {
             >
               Previous
             </button>
+            <div>
+            <button type="button"
+            onClick={openModal}
+            className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-md transition">Set Exam</button>&nbsp;&nbsp;
             <button
               onClick={handleSubmit}
               className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-md transition"
             >
               Create Job
             </button>
+            {showModal && <Modal onClose={closeModal} onSave={saveQuestions} />}
+            </div>
           </div>
         </div>
       )}
+
     </div>
-  );
+  )
 };
 
 export default CreateJob;
+
+
+
+
+
+
 

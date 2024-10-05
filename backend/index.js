@@ -6,6 +6,8 @@ import router from './routes/user.js'
 import jobRoutes from './routes/jobRoutes.js'
 import cors from 'cors'
 import mongoose from 'mongoose'
+import path from 'path'
+const __dirname = path.dirname(import.meta.url);
 //Importing dbConnector
 
 try {
@@ -19,11 +21,12 @@ try {
  }
 
 
-
 const app = express()
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(express.json())
 app.use(cors({origin:'*'}))
 app.use(express.urlencoded({extended:true}))
+
 
 app.use('/auth',router)
 app.use('/api',jobRoutes)
