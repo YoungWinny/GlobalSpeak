@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Swal from "sweetalert2";
-import { FaCheck, FaTimes } from "react-icons/fa";
+import { FaCheck, FaEye, FaTimes } from "react-icons/fa";
 
 // Simulated applications data
 const applicationsData = [
@@ -61,6 +61,7 @@ const ManageApplications = () => {
             <h2 className="text-xl font-semibold mb-2">{application.jobTitle}</h2>
             <p className="mb-1">Applicant: {application.applicantName}</p>
             <p className="mb-1">Experience: {application.experience}</p>
+            <p className="mb-1">Score: {application.score}</p>
             <p
               className={`mb-3 font-bold ${
                 application.status === "Accepted" ? "text-green-500" : 
@@ -75,14 +76,17 @@ const ManageApplications = () => {
                 className="bg-[#e8744d] text-white px-4 py-2 rounded-md flex items-center gap-2"
               >
                 <FaCheck /> Accept
-              </button>
+              </button>&nbsp;&nbsp;
+              <button className="bg-[#BEBEBE] text-white px-4 py-2 rounded-md flex items-center gap-2"> 
+              <FaEye /> 
+              </button>&nbsp;&nbsp;
               <button
                 onClick={() => handleDecision(application.id, "Rejected")}
                 className="bg-red-500 text-white px-4 py-2 rounded-md flex items-center gap-2"
               >
                 <FaTimes /> 
                 <span>Reject</span>
-              </button>
+              </button>&nbsp;&nbsp;
             </div>
           </div>
         ))}
