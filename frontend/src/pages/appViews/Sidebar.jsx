@@ -88,7 +88,7 @@ const Sidebar = ({ darkMode, isCollapsed, toggleSidebar }) => {
         <NavLink onClick={()=> {
           sessionStorage.clear();
           window.location.href='/'
-        }} className={({ isActive }) => `flex items-center p-4 mx-[8%] py-4 my-2 mt-4 hover:bg-[#EF9273] ${isActive ? 'text-white bg-[#EF9273] rounded' : ''}`}>
+        }} className={({ isActive }) => `flex items-center p-4 mx-[8%] py-4 my-2 mt-4 hover:bg-[#EF9273] hover:text-white hover:bg-[#EF9273] hover:rounded`}>
           <FaSignOutAlt/>
           <span className={`${isCollapsed ? 'hidden' : 'ml-2'}`}>Log Out</span>
         </NavLink>

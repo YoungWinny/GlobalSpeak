@@ -1,10 +1,35 @@
 import mongoose from "mongoose";
 
 const ExamSchema = new mongoose.Schema({
-  examContent: {
-    type: String, // You could store text or even a file path here
-    required: true,
-  },
+  questions: 
+  [
+    {
+      question: {
+        type: String,
+        required: true,
+      },
+      option1: {
+        type: String,
+        required: true,
+      },
+      option2: {
+        type: String,
+        required: true,
+      },
+      option3: {
+        type: String,
+        required: true,
+      },
+      option4: {
+        type: String,
+        required: true,
+      },
+      answer: {
+        type: String,
+        required: true,
+      }
+    }
+  ],
   job: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Job',
@@ -14,5 +39,5 @@ const ExamSchema = new mongoose.Schema({
   timestamps: true
 });
 
-const ExamModel = mongoose.model('Exam', ExamSchema);
-export { ExamModel as Exam };
+export const ExamModel = mongoose.model('Exam', ExamSchema);
+

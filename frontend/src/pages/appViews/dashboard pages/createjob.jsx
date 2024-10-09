@@ -1,113 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
 import JobImage from "../../../assets/images/job.jpg"; // Import your image here
 import axios from 'axios';
 import { axiosInstance } from '../../../utils/axiosInstance';
-import { FiX } from "react-icons/fi";
 
-// my modal to set the mcq
-const Modal = ({ onClose, onSave }) => {
-  const [currentQuestion, setCurrentQuestion] = useState(1);
-  const [questions, setQuestions] = useState([{ question: "", options: ["", "", "", ""] }]);
-
-  const handleQuestionChange = (e) => {
-    const newQuestions = [...questions];
-    newQuestions[currentQuestion - 1].question = e.target.value;
-    setQuestions(newQuestions);
-  };
-
-  const handleOptionChange = (e, optionIndex) => {
-    const newQuestions = [...questions];
-    newQuestions[currentQuestion - 1].options[optionIndex] = e.target.value;
-    setQuestions(newQuestions);
-  };
-
-  const nextQuestion = () => {
-    if (currentQuestion < questions.length) {
-      setCurrentQuestion(currentQuestion + 1);
-    } else {
-      setQuestions([...questions, { question: "", options: ["", "", "", ""] }]);
-      setCurrentQuestion(currentQuestion + 1);
-    }
-  };
-
-  const prevQuestion = () => {
-    if (currentQuestion > 1) {
-      setCurrentQuestion(currentQuestion - 1);
-    }
-  };
-
-  const saveQuestions = () => {
-    onSave(questions); // Pass questions to parent component
-    onClose(); // Close modal after saving
-    Swal.fire("Success!", "MCQ questions have been set.", "success");
-  };
-
-return (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-    <div className="bg-white p-6 rounded-lg relative shadow-2xl max-w-lg w-full">
-      <button
-        className="absolute top-3 right-3 text-black text-2xl"
-        onClick={onClose}
-      >
-        <FiX />
-      </button>
-      <h2 className="text-2xl font-bold mb-4">Set MCQ Questions</h2>
-
-      <div className="mb-4">
-        <label className="block font-semibold">Question {currentQuestion}</label>
-        <input
-          type="text"
-          value={questions[currentQuestion - 1]?.question || ""}
-          onChange={handleQuestionChange}
-          className="w-full p-2 border border-gray-300 rounded-lg mb-3"
-          placeholder="Enter your question"
-        />
-        <div>
-          {questions[currentQuestion - 1]?.options.map((option, i) => (
-            <div key={i} className="mb-2">
-              <label className="block text-gray-700">Option {i + 1}</label>
-              <input
-                type="text"
-                value={option}
-                onChange={(e) => handleOptionChange(e, i)}
-                className="w-full p-2 border border-gray-300 rounded-lg"
-                placeholder={`Option ${i + 1}`}
-              />   
-            </div>
-            
-          ))}
-        </div>
-      </div>
-
-      <div className="flex justify-between items-center mt-4">
-        <button
-          onClick={prevQuestion}
-          disabled={currentQuestion === 1}
-          className={`px-4 py-2 bg-gray-400 text-white rounded-lg ${currentQuestion === 1 && "opacity-50 cursor-not-allowed"}`}
-        >
-          Previous
-        </button>
-        <button
-          onClick={nextQuestion}
-          className="px-4 py-2 bg-blue-500 text-white rounded-lg"
-        >
-          Next
-        </button>
-      </div>
-
-      <div className="mt-6">
-        <button
-          onClick={saveQuestions}
-          className="w-full py-2 bg-green-500 text-white rounded-lg"
-        >
-          OK
-        </button>
-      </div>
-    </div>
-  </div>
-);
-};
 
 
 // // Drag-and-Drop Component
@@ -139,14 +35,9 @@ const DragAndDrop = ({ dragging, onDragOver, onDragLeave, onDrop, onBrowse }) =>
 };
 
 const CreateJob = () => {
-  const [showModal, setShowModal] = useState(false);
-  const [questions, setQuestions] = useState([]);
-
-  const openModal = () => setShowModal(true);
-  const closeModal = () => setShowModal(false);
-  const saveQuestions = (questions) => setQuestions(questions);
-  const [step, setStep] = useState(1);
+  
   const [dragging, setDragging] = useState(false);
+  const [step, setStep] = useState(1)
   const [jobDetails, setJobDetails] = useState({
     title: '',
     category: '',
@@ -159,6 +50,13 @@ const CreateJob = () => {
     files: [],
   });
   const [errors, setErrors] = useState({});
+  const [loggedUser, setLoggedUser] = useState(null);
+
+  useEffect(()=>{
+    const storedUser = sessionStorage.getItem('user');
+    if(storedUser)
+      setLoggedUser(JSON.parse(storedUser))
+  },[])
 
   // Handle next and previous steps
   const nextStep = () => {
@@ -233,6 +131,7 @@ const CreateJob = () => {
       jobDetails.files.forEach(file => {
         formData.append('files', file);
       });
+      formData.append('userId', loggedUser?._id);
   
       axiosInstance.post('/api/jobs', formData, {
         headers: {
@@ -292,28 +191,42 @@ const CreateJob = () => {
             </div>
             <div className="mb-4">
               <label className="block text-gray-700 mb-2 font-semibold">Category</label>
-              <input
-                type="text"
-                name="category"
-                value={jobDetails.category}
-                onChange={handleChange}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 transition"
-                placeholder="Vernacular languages"
-              />
+              <select 
+              value={jobDetails.category}
+              onChange={(e)=>{
+                setJobDetails({ ...jobDetails, category: e.target.value });
+              }}
+               className="w-full p-3  my-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 transition"
+              >
+                  <option>Tech</option>
+                  <option>Design</option>
+                  <option>Marketing</option>
+                  <option>Business</option>
+                  <option>Real Estate</option>
+                  <option>Industry</option>
+                  <option>Finance</option>
+              </select>
               {errors.category && <p className="text-red-500">{errors.category}</p>}
             </div>
+
             <div className="mb-4">
               <label className="block text-gray-700 mb-2 font-semibold">Job Type</label>
-              <input
-                type="text"
-                name="jobType"
-                value={jobDetails.jobType}
-                onChange={handleChange}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 transition"
-                placeholder="Freelance"
-              />
+              <select 
+              value={jobDetails.jobType}
+              onChange={(e)=>{
+                setJobDetails({ ...jobDetails, jobType: e.target.value });
+              }}
+               className="w-full p-3  my-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 transition"
+              >
+                  <option>Full-time</option>
+                  <option>Part-time</option>
+                  <option>Remote</option>
+                  <option>Contract</option>
+                  <option>Internship</option>
+              </select>
               {errors.jobType && <p className="text-red-500">{errors.jobType}</p>}
             </div>
+
             <div className="mb-4">
               <label className="block text-gray-700 mb-2 font-semibold">Description</label>
               <input
@@ -326,30 +239,48 @@ const CreateJob = () => {
               />
               {errors.description && <p className="text-red-500">{errors.description}</p>}
             </div>
+
             <div className="mb-4">
               <label className="block text-gray-700 mb-2 font-semibold">Experience</label>
-              <input
-                type="text"
-                name="experience"
-                value={jobDetails.experience}
-                onChange={handleChange}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 transition"
-                placeholder="5+ years"
-              />
+              <select 
+              value={jobDetails.experience}
+              onChange={(e)=>{
+                setJobDetails({ ...jobDetails, experience: e.target.value });
+              }}
+               className="w-full p-3  my-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 transition"
+              >
+                  <option>Beginner</option>
+                  <option>Mid level</option>
+                  <option>Above average</option>
+                  <option>Senior level</option>
+                  <option>Expert</option>
+              </select>
               {errors.experience && <p className="text-red-500">{errors.experience}</p>}
             </div>
+
             <div className="mb-4">
               <label className="block text-gray-700 mb-2 font-semibold">Location</label>
-              <input
-                type="text"
-                name="location"
-                value={jobDetails.location}
-                onChange={handleChange}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 transition"
-                placeholder="Yaounde, Cameroon"
-              />
+              <select 
+              value={jobDetails.location}
+              onChange={(e)=>{
+                setJobDetails({ ...jobDetails, location: e.target.value });
+              }}
+               className="w-full p-3  my-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 transition"
+              >
+                  <option>Yaounde</option>
+                  <option>Douala</option>
+                  <option>Ebolowa</option>
+                  <option>Ngaoundere</option>
+                  <option>Bafoussam</option>
+                  <option>Maroua</option>
+                  <option>Bamenda</option>
+                  <option>Bertoua</option>
+                  <option>Buea</option>
+                  <option>Garoua</option>
+              </select>
               {errors.location && <p className="text-red-500">{errors.location}</p>}
             </div>
+
             <div className="mb-4">
               <label className="block text-gray-700 mb-2 font-semibold">Salary</label>
               <input
@@ -487,18 +418,14 @@ const CreateJob = () => {
             >
               Previous
             </button>
-            <div>
-            <button type="button"
-            onClick={openModal}
-            className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-md transition">Set Exam</button>&nbsp;&nbsp;
+
             <button
               onClick={handleSubmit}
-              className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-md transition"
+              className="bg-green-500 text-white px-6 py-2 rounded-md hover:bg-green-600 transition"
             >
               Create Job
             </button>
-            {showModal && <Modal onClose={closeModal} onSave={saveQuestions} />}
-            </div>
+            
           </div>
         </div>
       )}

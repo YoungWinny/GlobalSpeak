@@ -1,38 +1,20 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FaBook, FaUpload } from 'react-icons/fa';
 import { MdVideoLibrary } from 'react-icons/md';
 import { useDropzone } from 'react-dropzone';
-
-// Example questions based on translation and transcription topics
-const quizData = [
-  {
-    question: "What is the most common file format for transcriptions?",
-    options: ["PDF", "TXT", "JPEG", "MP4"],
-    answer: "TXT",
-  },
-  {
-    question: "Which of the following is a challenge in audio transcription?",
-    options: ["Background noise", "Accurate pronunciation", "Spelling errors", "Slow internet connection"],
-    answer: "Background noise",
-  },
-  {
-    question: "In translation, what does 'CAT' stand for?",
-    options: ["Computer-Assisted Translation", "Content-Audio Transfer", "Centralized Automated Translator", "Content-Accuracy Tool"],
-    answer: "Computer-Assisted Translation",
-  },
-  {
-    question: "Which of the following is NOT a common transcription tool?",
-    options: ["Express Scribe", "Dragon", "Audacity", "Google Docs"],
-    answer: "Google Docs",
-  },
-  {
-    question: "Which of the following skills is essential for a translator?",
-    options: ["Typing speed", "Fluency in multiple languages", "Legal knowledge", "Programming skills"],
-    answer: "Fluency in multiple languages",
-  }
-];
+import Swal from 'sweetalert2';
+import { useParams, useNavigate } from 'react-router-dom';
+import { axiosInstance } from '../../../utils/axiosInstance';
+import useUser from '../../../hooks/useUser';
 
 const QuizApp = () => {
+  const navigate = useNavigate();
+  const {id} = useParams();
+  const [job, setJob] = useState([]);
+  const [loading, setLoading] = useState(false)
+  const user = useUser();
+  const [motivation, setMotivation] = useState('')
+  const [quizData, setQuizData] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState("");
   const [score, setScore] = useState(0);
@@ -77,6 +59,88 @@ const QuizApp = () => {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
+  const formatQuiz=(questions)=>{
+
+    let tempArr = questions.map((item)=> {
+      const answers = {
+        'A': 0,
+        'B': 1,
+        'C': 2,
+        'D': 3
+      }
+      const options = [item?.option1, item?.option2,item?.option3,item?.option4]
+      return {
+        question: item?.question,
+        options,
+        answer: options[answers[item?.answer]]
+      }
+    })
+
+    setQuizData([...tempArr])
+  }
+
+  useEffect(()=>{
+    const selectedJob = sessionStorage.getItem('selectedJob');
+    if(selectedJob){
+      setJob(JSON.parse(selectedJob));
+    }
+    formatQuiz(JSON.parse(selectedJob)?.exam[0]?.questions)
+  }, [])
+
+  const submitExam = async ()=>{
+    setLoading(true)
+    if(!motivation){
+      Swal.fire({
+        title: 'Submit Exam',
+        text: 'Sorry can\'t submit all required data must be submitted',
+        icon: 'error',
+        confirmButtonText: 'OK'
+      }).then(() => {
+        return;
+      });
+      setLoading(false)
+    }else{
+      const formData = new FormData();
+      formData.append('job', id);
+      formData.append('user', user?._id);
+      formData.append('score', `${score} / ${quizData.length}`);
+      formData.append('motivation', motivation);
+      formData.append('files', videoFile);
+
+      try{
+        const response = await axiosInstance.post('/api/applications',formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          }
+        });
+        if(response.status == 201 || response.status == 200){
+          Swal.fire({
+            title: 'Submit Exam',
+            text: `Applied successfully to job ${job?.title} `,
+            icon: 'success',
+            confirmButtonText: 'OK'
+          }).then(() => {
+            navigate('/dashboard/apply')
+          });
+        }
+
+      }catch(err){
+        Swal.fire({
+          title: 'Submit Exam',
+          text: 'An error occured while submitting try re-submitting  and make sure you haven\'t applied already',
+          icon: 'error',
+          confirmButtonText: 'OK'
+        }).then(() => {
+          return;
+        });
+      }finally{
+        setLoading(false)
+      }
+    }
+  }
+
+
+
   return (
     <div className="w-screen h-screen flex flex-col items-center justify-evenly bg-gray-100">
       <div className='w-11/12 flex items-center'>
@@ -91,10 +155,10 @@ const QuizApp = () => {
               <h1 className="text-2xl font-bold text-gray-800 mb-6">
                 Question {currentQuestionIndex + 1} / {quizData.length}
               </h1>
-              <p className="text-lg mb-4">{quizData[currentQuestionIndex].question}</p>
+              <p className="text-lg mb-4">{quizData[currentQuestionIndex]?.question}</p>
 
               <div className="space-y-4">
-                {quizData[currentQuestionIndex].options.map((option, index) => (
+                {quizData[currentQuestionIndex]?.options?.map((option, index) => (
                   <label key={index} className="flex items-center space-x-2">
                     <input
                       type="radio"
@@ -108,7 +172,7 @@ const QuizApp = () => {
                 ))}
               </div>
 
-              <div className="flex justify-between items-end h-1/2 bottom-20 ">
+              <div className="flex justify-between h-1/3 items-end ">
                 <button
                   onClick={handlePrevQuestion}
                   className={`bg-gray-400 text-white py-2 px-4 rounded-lg shadow ${currentQuestionIndex === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-500'}`}
@@ -142,7 +206,7 @@ const QuizApp = () => {
         <div className='part2 w-[30%] bg-[#FEF9F8] h-[90%] p-8 rounded-lg shadow-lg flex flex-col justify-between items-center'>
           <h2 className='text-lg'>Tell me about you? We need a full description of you and why you're fit for the job in textual form in the language of the job</h2>
           <span className='self-end text-red-500 text-2xl'>*</span>
-          <textarea className='w-[98%] h-[400px] border border-gray-300 rounded border-dashed'/>
+          <textarea value={motivation} onChange={(e)=> setMotivation(e.target.value)} className='w-[98%] h-[400px] p-2 border border-gray-300 rounded border-dashed'/>
         </div>
         <div className='part3 w-[30%] bg-[#FEF9F8] h-[90%] p-8 rounded-lg shadow-lg flex flex-col'>
           <span className='text-lg text-center py-4'>Upload a video of yourself giving your motivations in the language of the job</span>
@@ -163,7 +227,7 @@ const QuizApp = () => {
         </div>
       </div>
 
-      <button className="flex self-end mr-16 bg-orange-500 text-white py-2 px-4 rounded-lg shadow hover:bg-orange-600">Submit Test</button>
+      <button onClick={()=> submitExam()} className={`flex self-end mr-16 ${loading ? 'bg-gray-500': 'bg-orange-500'} text-white py-2 px-4 rounded-lg shadow ${!loading && 'hover:bg-orange-600'}`}>{loading ? 'Submittig': 'Submit Test'}</button>
     </div>
   );
 };

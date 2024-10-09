@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import Hero from "../../../assets/images/Jdi.jpg";
-import { ClipLoader } from "react-spinners";
 import { FiMapPin } from 'react-icons/fi';
+import useUser from "../../../hooks/useUser";
+import Swal from 'sweetalert2';
 
 const JobDetails = () => {
   const { id } = useParams(); // Get job ID from URL params
@@ -12,6 +13,7 @@ const JobDetails = () => {
   const [job, setJob] = useState(null); // State to hold job details
   const [loading, setLoading] = useState(true); // Loading state
   const [error, setError] = useState(null); // Error state
+  const loggedUser = useUser();
 
   // Fetch job details from the backend
   const fetchJobDetails = async () => {
@@ -19,9 +21,7 @@ const JobDetails = () => {
       let jobList = sessionStorage.getItem('jobList')
       if(jobList){
         jobList = JSON.parse(jobList)
-        console.log(jobList)
-        const currentJob = jobList?.find((item)=> item?._id == id)
-        console.log('current: ', currentJob)
+        const currentJob = jobList?.find((item)=> item?._id == id);
         setJob(currentJob)
       }else{
          navigate('/dashboard/apply');
@@ -34,7 +34,6 @@ const JobDetails = () => {
   };
 
   useEffect(() => {
-    console.log('entered')
     fetchJobDetails();
   }, []);
 
@@ -45,6 +44,22 @@ const JobDetails = () => {
       </div>
     );
     
+  }
+
+  const applyForJob=async()=>{
+    if(!job?.examSet){
+      Swal.fire({
+        title: 'Apply For Job',
+        text: "Sorry can't apply for this job yet no exam set for this job",
+        icon: 'error',
+        confirmButtonText: 'OK'
+      }).then(() => {
+        return;
+      });
+    }else{
+      sessionStorage.setItem('selectedJob', JSON.stringify(job))
+      navigate(`/mcq/${job?._id}`)
+    }
   }
 
   if (error) {
@@ -100,9 +115,9 @@ return (
             <li className="text-xl text-gray-800">
               <strong>Category:</strong> {job?.category}
             </li>
-            <li className="text-xl text-gray-800">
+            {/* <li className="text-xl text-gray-800">
               <strong>Type:</strong> {job?.type}
-            </li>
+            </li> */}
             <li className="text-xl text-gray-800">
               <strong>Experience:</strong> {job?.experience || "Not specified"}
             </li>
@@ -112,6 +127,9 @@ return (
             <li className="text-xl text-gray-800">
               <strong>Salary:</strong> {job?.salary || "Not disclosed"}
             </li>
+            <li className={`text-xl ${job?.examSet ? 'text-green-600' : 'text-red-600'}`}>
+              <strong>Exam Set:</strong> {job?.examSet ? ' Yes':' No'}
+            </li>
           </ul>
   
          
@@ -120,11 +138,13 @@ return (
           </div>
   
       
-          <div className="flex justify-end">
-            <button className="bg-[rgba(239,146,115,1)] text-white text-lg py-2 px-6 rounded-lg shadow hover:bg-orange-600 transition-colors duration-200">
+          {
+            loggedUser?.role === 'jobseeker' &&
+            <div className="flex justify-end">
+            <button onClick={()=> applyForJob()} className="bg-[rgba(239,146,115,1)] text-white text-lg py-2 px-6 rounded-lg shadow hover:bg-orange-600 transition-colors duration-200">
               Apply
             </button>
-          </div>
+          </div>}
           
         </div>
       </div>

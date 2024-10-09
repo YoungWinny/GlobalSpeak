@@ -2,6 +2,7 @@ import Job from "../models/job.js";
 import multer from 'multer';
 import fs from 'fs';
 import path from 'path'
+import { ExamModel } from "../models/exam.js";
 const __dirname = path.dirname(import.meta.url);
 
 // Get a single job by ID
@@ -43,7 +44,7 @@ const storage = multer.diskStorage({
 export const upload = multer({ storage });
 
 export const createJob = async (req, res) => {
-  const { title, description, category, salary, location, jobType, experience } = req.body;
+  const { userId, title, description, category, salary, location, jobType, experience } = req.body;
   const files = req.files; // This will hold the uploaded files
 
   if (!files || files.length === 0) {
@@ -53,6 +54,7 @@ export const createJob = async (req, res) => {
 
   try {
     const newJob = await Job.create({
+      userId,
       title,
       description,
       category,
@@ -92,20 +94,24 @@ export const updateJob = async (req, res) => {
 export const getAllJobs = async (req, res) => {
   try {
     const jobs = await Job.find();
-    jobs.forEach((job)=>{
-     const files = job?.files?.map((filename) => {
-      let filePath = '';
-      if(filename){
-        filePath = path.join(__dirname.replace('controllers',''), filename);
-      }
+    const jobList = []
+    for(const job of jobs){
+      const files = job?.files?.map((filename) => {
+        let filePath = '';
+        if(filename){
+          filePath = path.join(__dirname.replace('controllers',''), filename);
+        }
+  
+        return filePath;
+       })
+  
+       job.files = files;
 
-      return filePath;
-     })
+        const val = await ExamModel.find({job: job?._id});
+        jobList.push({...job?._doc, examSet: val?.length > 0 ? true: false, exam: val});
+    }
 
-     job.files = files;
-    })
-
-    res.status(200).json(jobs);
+    res.status(200).json(jobList);
   } catch (err) {
     console.error("Error fetching jobs:", err);
     res.status(400).json({ error: err.message });

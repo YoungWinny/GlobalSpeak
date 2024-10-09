@@ -17,9 +17,9 @@ import { Link, useNavigate } from "react-router-dom";
 import Swal from 'sweetalert2';
 
 const Register = () => {
-  const [email, setEmail] = useState("lebronj@gmail.com");
-  const [password, setPassword] = useState("password");
-  const [fullName, setFullName] = useState("Lebron James");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
   const [isTypePassword, setIsTypePassword] = useState(true);
   const [errors, setErrors] = useState({ email: "", password: "", fullName: "" });
   const navigate = useNavigate();
@@ -88,7 +88,7 @@ const Register = () => {
     <div className="main">
       <div className="form">
         <div className="form__left">
-          <div className="header">
+          <div className="header mb-8">
             <img src="src/assets/images/headphone-5-svgrepo-com.svg" alt="logo" />
             <h1 className="font-black text-3xl">GlobalSpeak</h1>
           </div>
@@ -108,7 +108,7 @@ const Register = () => {
               <FormImput
                 leftIcon={userIcon}
                 label="Full name"
-                placeholder="Lebron James"
+                placeholder="thekafe"
                 rightIcon={null}
                 type="text"
                 state={fullName}
@@ -119,7 +119,7 @@ const Register = () => {
                 leftIcon={emailIcon}
                 type="email"
                 label="Email address"
-                placeholder="Lebron_James@gmail.com"
+                placeholder="thekafe@example.com"
                 rightIcon={cancelIcon}
                 onClick={() => setEmail("")}
                 state={email}

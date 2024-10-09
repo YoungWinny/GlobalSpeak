@@ -37,6 +37,10 @@ const jobSchema = new mongoose.Schema(
     //   type: mongoose.Schema.Types.ObjectId,
     //   ref: "Exam",
     // },
+    userId: {
+      type: String,
+      required: true
+    },
     files: [{ // Add this field to store file paths
              type: String,
          }],

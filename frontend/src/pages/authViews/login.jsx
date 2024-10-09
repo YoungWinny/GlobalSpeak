@@ -93,7 +93,14 @@ const Login = () => {
         });
       })
       .catch((error) => {
-        console.log("Error registering user", error);
+        Swal.fire({
+          title: 'Login Failed!',
+          text: error?.response?.data?.message ?? 'An error occured while logging in user try again',
+          icon: 'error',
+          confirmButtonText: 'OK'
+        }).then(() => {
+          return;
+        });
       });
       
     
@@ -124,7 +131,7 @@ const Login = () => {
                 leftIcon={emailIcon}
                 type="email"
                 label="Email address"
-                placeholder="Lebron_James@gmail.com"
+                placeholder="thekafe@example.com"
                 rightIcon={cancelIcon}
                 onClick={() => setEmail('')}
                 state={email}
