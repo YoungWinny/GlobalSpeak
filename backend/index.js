@@ -20,8 +20,8 @@ const __dirname = path.dirname(__filename);
 // MongoDB connection
 try {
   const dbUrl = "mongodb+srv://lilndabose:xzLuzkg1MlkvIrqA@cluster0.mnivnpc.mongodb.net/global-speak";
-  const dbUrlLocal = "mongodb://127.0.0.1:27017/global-speak";
-  await mongoose.connect(dbUrlLocal).then(() => {
+  // const dbUrlLocal = "mongodb://127.0.0.1:27017/global-speak";
+  await mongoose.connect(dbUrl).then(() => {
     console.log('MongoDB connected');
   });
 } catch (err) {

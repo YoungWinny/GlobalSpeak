@@ -68,7 +68,8 @@ export const saveTaskDocument = async (req, res) => {
     const updatedTask = await TaskModel.findByIdAndUpdate(
       taskId,
       {
-        files: files.map(file => file.path)
+        files: files.map(file => file.path),
+        status: 'completed'
       }
     );
     res.status(200).json(updatedTask);
@@ -82,7 +83,7 @@ export const getTasksForJob = async (req, res) => {
   const { jobId } = req.params;
   
   try {
-    const tasks = await TaskModel.find({ job: jobId });
+    const tasks = await TaskModel.find({ job: jobId }).populate('job').populate('assignedTo');
     res.status(200).json(tasks);
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -93,7 +94,7 @@ export const getTasksForUser = async (req, res) => {
   const { userId } = req.params;
   
   try {
-    const tasks = await TaskModel.find({ assignedTo: userId });
+    const tasks = await TaskModel.find({ assignedTo: userId }).populate('job').populate('assignedTo');
     res.status(200).json(tasks);
   } catch (err) {
     res.status(400).json({ error: err.message });
