@@ -76,7 +76,7 @@ const ManageApplications = () => {
                 className="bg-[#e8744d] text-white px-4 py-2 rounded-md flex items-center gap-2"
               >
                 <FaCheck /> Accept
-              </button>&nbsp;&nbsp;
+              </button>&nbsp;
               <button className="bg-[#BEBEBE] text-white px-4 py-2 rounded-md flex items-center gap-2"> 
               <FaEye /> 
               </button>&nbsp;&nbsp;
