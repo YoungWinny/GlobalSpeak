@@ -271,16 +271,16 @@ const JobCard = ({ job, index, loggedUser }) => {
 export const Apply = () => {
   const [jobs, setJobs] = useState([]); // Job listings state
   const [currentPage, setCurrentPage] = useState(1); // Current page state for pagination
-  const jobsPerPage = 6; // Number of jobs displayed per page'
+  const jobsPerPage = 6; // Number of jobs displayed per page
   const loggedUser = useUser();
-  const [filteredJobs, setFilteredJobs] = useState([])
+  const [filteredJobs, setFilteredJobs] = useState([]);
   const [searchOptions, setSearchOptions] = useState({
-    title: '',
-    location: '', 
+    title: "",
+    location: "",
     type: [],
     category: [],
-    experience: []
-  })
+    experience: [],
+  });
 
   useEffect(() => {
     // Fetch jobs from the backend
@@ -289,11 +289,22 @@ export const Apply = () => {
         const response = await axiosInstance.get("/api/jobs");
         sessionStorage.setItem("jobList", JSON.stringify(response.data));
         let storedUser = sessionStorage.getItem("user");
-        if (storedUser){
-          storedUser = JSON.parse(storedUser)
+        if (storedUser) {
+          storedUser = JSON.parse(storedUser);
         }
-        const filteredJobs = response.data?.filter((job) => job?.userId === storedUser?._id);
-        setJobs(storedUser?.role === 'recruiter' ? [...filteredJobs] : [...response?.data]); // Set jobs from backend response
+        const filteredJobs = response.data?.filter(
+          (job) => job?.userId === storedUser?._id
+        );
+        setJobs(
+          storedUser?.role === "recruiter"
+            ? [...filteredJobs]
+            : [...response?.data]
+        );
+        setFilteredJobs(
+          storedUser?.role === "recruiter"
+            ? [...filteredJobs]
+            : [...response?.data]
+        );
       } catch (error) {
         console.error("Error fetching jobs:", error);
       }
@@ -302,48 +313,55 @@ export const Apply = () => {
     fetchJobs();
   }, []);
 
-  // Handle search input changes
-  const handleSearchInputChange = (event) => {
-    const { name, value } = event.target;
-    setSearchOptions({ ...searchOptions, [name]: value });
-  };
-
-  // Update filteredJobs based on search options
+  // Filtering function
   useEffect(() => {
-    const filteredData = jobs.filter((job) => {
-      const { title, location } = searchOptions;
-      console.log(title)
-      let titleMatch = true;
-      let locationMatch = true;
+    const filterJobs = () => {
+      let updatedJobs = [...jobs];
 
-      if (title) {
-        titleMatch = job.title.toLowerCase().includes(title.toLowerCase());
+      if (searchOptions.title) {
+        updatedJobs = updatedJobs.filter((job) =>
+          job.title.toLowerCase().includes(searchOptions.title.toLowerCase())
+        );
       }
 
-      if (location) {
-        locationMatch = job.location.toLowerCase().includes(location.toLowerCase());
+      if (searchOptions.location) {
+        updatedJobs = updatedJobs.filter((job) =>
+          job.location.toLowerCase().includes(searchOptions.location.toLowerCase())
+        );
       }
 
-      // Add filtering logic for type, category, and experience (optional)
-      // You can use similar logic to check if the job category or experience level matches the selected options in searchOptions
+      // Add more filters based on category, type, experience if necessary
+      // Example for category:
+      if (searchOptions.category.length > 0) {
+        updatedJobs = updatedJobs.filter((job) =>
+          searchOptions.category.includes(job.category)
+        );
+      }
 
-      return titleMatch && locationMatch; // Update this based on your filtering needs
-    });
+      setFilteredJobs(updatedJobs);
+    };
 
-    setFilteredJobs(filteredData);
-  }, [jobs, searchOptions]);
+    filterJobs();
+  }, [searchOptions, jobs]);
 
   // Pagination logic
   const indexOfLastJob = currentPage * jobsPerPage;
   const indexOfFirstJob = indexOfLastJob - jobsPerPage;
-  const currentJobs = jobs.slice(indexOfFirstJob, indexOfLastJob);
-  const totalPages = Math.ceil(jobs.length / jobsPerPage);
+  const currentJobs = filteredJobs.slice(indexOfFirstJob, indexOfLastJob);
+  const totalPages = Math.ceil(filteredJobs.length / jobsPerPage);
 
-  // Handle page change for pagination
   const handlePageChange = (page) => {
     if (page > 0 && page <= totalPages) {
       setCurrentPage(page);
     }
+  };
+
+  // Update search options as users type
+  const handleSearchChange = (e) => {
+    setSearchOptions({
+      ...searchOptions,
+      [e.target.name]: e.target.value,
+    });
   };
 
   return (
@@ -368,6 +386,9 @@ export const Apply = () => {
               className="bg-white h-1/2 w-full mt-1 focus:outline-none border-b-2 border-[#BEBEBE]"
               type="text"
               placeholder="Job title or keyword"
+              name="title"
+              value={searchOptions.title}
+              onChange={handleSearchChange}
             />
           </div>
           <div className="flex mt-2 gap-4">
@@ -376,22 +397,14 @@ export const Apply = () => {
               src={location}
               alt="Location Icon"
             />
-            <select
+            <input
               className="bg-white h-1/2 w-full mt-1 focus:outline-none border-b-2 border-[#BEBEBE]"
+              type="text"
+              placeholder="Location"
               name="location"
-              id="location"
-            >
-              <option value="Yaounde">Yaounde, CMR</option>
-                  <option value={'Douala'}>Douala, CMR</option>
-                  <option value={'Ebolowa'}>Ebolowa, CMR</option>
-                  <option value={'Ngaoundere'}>Ngaoundere, CMR</option>
-                  <option value={'Bafoussam'}>Bafoussam, CMR</option>
-                  <option value={'Maroua'}>Maroua, CMR</option>
-                  <option value={'Bamenda'}>Bamenda, CMR</option>
-                  <option value={'Bertoua'}>Bertoua, CMR</option>
-                  <option value={'Buea'}>Buea, CMR</option>
-                  <option value={'Garoua'}>Garoua, CMR</option>
-            </select>
+              value={searchOptions.location}
+              onChange={handleSearchChange}
+            />
           </div>
           <button className="bg-[rgba(239,146,115,1)] text-white mt-3 px-4 py-2">
             Search my job
@@ -408,74 +421,22 @@ export const Apply = () => {
         {/* Main Job Listing Section */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-8">
           {/* Sidebar Section */}
-          <aside className="col-span-1 bg-white p-4 rounded-lg shadow-md">
-            <h2 className="font-bold mb-2">Type of Employment</h2>
-            <ul className="space-y-2 mb-4">
-              {[
-                "Full-time",
-                "Part-time",
-                "Remote",
-                "Contract",
-                "Internship",
-              ].map((type) => (
-                <li key={type}>
-                  <input type="checkbox" className="mr-2" />
-                  {type}
-                </li>
-              ))}
-            </ul>
-
-            <h2 className="font-bold mb-2">Categories</h2>
-            <ul className="space-y-2 mb-4">
-              {[
-                "Tech",
-                "Design",
-                "Marketing",
-                "Business",
-                "Real estate",
-                "Industry",
-                "Finance",
-              ].map((cat) => (
-                <li key={cat}>
-                  <input type="checkbox" className="mr-2" />
-                  {cat}
-                </li>
-              ))}
-            </ul>
-
-            <h2 className="font-bold mb-2">Experience</h2>
-            <ul className="space-y-2 mb-4">
-              {[
-                "Beginner",
-                "Mid level",
-                "Above average",
-                "Senior level",
-                "Expert",
-              ].map((exp) => (
-                <li key={exp}>
-                  <input type="checkbox" className="mr-2" />
-                  {exp}
-                </li>
-              ))}
-            </ul>
-          </aside>
 
           {/* Job Cards Section */}
-          <section className="col-span-3">
+          <section className="col-span-4">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">All Jobs</h2>
-              <div className="flex items-center space-x-2">
-                <span>Sort by:</span>
-                <select className="border border-gray-300 rounded-md">
-                  <option>Most relevant</option>
-                </select>
-              </div>
             </div>
 
             {/* List of Job Cards */}
             <ul className="space-y-4">
               {currentJobs.map((job, index) => (
-                <JobCard key={index} job={job} index={index + 1} loggedUser={loggedUser} />
+                <JobCard
+                  key={index}
+                  job={job}
+                  index={index + 1}
+                  loggedUser={loggedUser}
+                />
               ))}
             </ul>
 
