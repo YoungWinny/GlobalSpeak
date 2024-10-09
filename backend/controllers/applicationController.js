@@ -1,4 +1,5 @@
 import { ApplicationModel } from "../models/application.js";
+import { TaskModel } from "../models/task.js";
 import multer from 'multer';
 import fs from 'fs';
 import path from 'path'
@@ -51,17 +52,49 @@ export const createApplication = async (req, res) => {
 // Accept or reject an application
 export const updateApplication = async (req, res) => {
   const { applicationId } = req.params;
-  
+
   try {
+    // Update the application with new data from req.body
     const updatedApplication = await ApplicationModel.findByIdAndUpdate(
       applicationId,
-      { ...req.body }
+      { ...req.body },
+      { new: true } // return the updated document
     );
+
+    console.log('status: ', req.body?.status);
+
+    // Check if the application status is 'accepted'
+    if (req.body?.status === 'accepted') {
+      console.log('Application accepted, creating a new task');
+
+      // Ensure job and user exist in updatedApplication before creating a task
+      if (updatedApplication?.job && updatedApplication?.user) {
+        const newTask = new TaskModel({
+          job: updatedApplication.job,
+          assignedTo: updatedApplication.user
+        });
+
+        try {
+          const task = await newTask.save();
+          console.log('Saved task: ', task);
+        } catch (taskError) {
+          console.error('Error saving task:', taskError.message);
+          return res.status(500).json({ error: 'Task creation failed' });
+        }
+      } else {
+        console.error('Job or User missing in the updated application');
+        return res.status(400).json({ error: 'Invalid job or user for task creation' });
+      }
+    }
+
+    // Respond with the updated application
     res.status(200).json(updatedApplication);
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    console.error('Error updating application:', err.message);
+    res.status(500).json({ error: 'Application update failed' });
   }
 };
+
 
 // Get all applications for a job
 export const getApplicationsForJob = async (req, res) => {

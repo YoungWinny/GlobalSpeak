@@ -9,6 +9,7 @@ import router from './routes/user.js';
 import jobRoutes from './routes/jobRoutes.js';
 import examRoutes from './routes/examRoutes.js';
 import applicationRoutes from './routes/applicantsRoutes.js';
+import taskRoutes from './routes/taskRoutes.js'
 
 dotenv.config();
 
@@ -19,7 +20,8 @@ const __dirname = path.dirname(__filename);
 // MongoDB connection
 try {
   const dbUrl = "mongodb+srv://lilndabose:xzLuzkg1MlkvIrqA@cluster0.mnivnpc.mongodb.net/global-speak";
-  await mongoose.connect(dbUrl).then(() => {
+  const dbUrlLocal = "mongodb://127.0.0.1:27017/global-speak";
+  await mongoose.connect(dbUrlLocal).then(() => {
     console.log('MongoDB connected');
   });
 } catch (err) {
@@ -41,6 +43,7 @@ app.use('/auth', router);
 app.use('/api', jobRoutes);
 app.use('/api', examRoutes);
 app.use('/api', applicationRoutes);
+app.use('/api', taskRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

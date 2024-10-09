@@ -13,11 +13,24 @@ const TaskSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['assigned', 'in progress', 'completed'],
-    default: 'assigned',
+    enum: ['in progress', 'completed'],
+    default: 'in progress',
+  },
+  files: [
+    { 
+      type: String,
+    }
+  ],
+  payment: {
+    amount:{
+      type: String
+    },
+    message: {
+      type: String
+    }
   },
   rating: {
-    type: Number, // Optional, will be given after completion
+    type: Number, 
     min: 1,
     max: 5,
   }
@@ -26,4 +39,4 @@ const TaskSchema = new mongoose.Schema({
 });
 
 const TaskModel = mongoose.model('Task', TaskSchema);
-export { TaskModel as Task };
+export { TaskModel };

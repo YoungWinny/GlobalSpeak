@@ -1,11 +1,37 @@
-import { Task } from '../models/Task.js';
+import { TaskModel } from "../models/task.js";
+import multer from 'multer';
+import fs from 'fs';
+import path from 'path'
+const __dirname = path.dirname(import.meta.url);
+
+
+// Ensure the 'uploads/' directory exists before storing files
+const uploadDir = path.join(process.cwd(), 'uploads'); // __dirname might not work, use process.cwd()
+if (!fs.existsSync(uploadDir)) {
+  console.log("Creating 'uploads/' directory");
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+// Now continue with the multer storage setup
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    console.log("Storing file in 'uploads/'");
+    cb(null, 'uploads/');
+  },
+  filename: function (req, file, cb) {
+    console.log("Generating unique filename for:", file.originalname);
+    cb(null, Date.now() + '-' + file.originalname);
+  },
+});
+
+export const upload = multer({ storage });
 
 // Create a new task
 export const createTask = async (req, res) => {
-  const { job, assignedTo, status } = req.body;
+  const { job, assignedTo } = req.body;
   
   try {
-    const newTask = new Task({ job, assignedTo, status });
+    const newTask = new TaskModel({ job, assignedTo });
     await newTask.save();
     res.status(201).json(newTask);
   } catch (err) {
@@ -14,15 +40,36 @@ export const createTask = async (req, res) => {
 };
 
 // Update task status
-export const updateTaskStatus = async (req, res) => {
+export const updateTask = async (req, res) => {
   const { taskId } = req.params;
-  const { status, rating } = req.body;
   
   try {
-    const updatedTask = await Task.findByIdAndUpdate(
+    const updatedTask = await TaskModel.findByIdAndUpdate(
       taskId,
-      { status, rating },
-      { new: true }
+      { ...req.body}
+    );
+    res.status(200).json(updatedTask);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
+// Update task status
+export const saveTaskDocument = async (req, res) => {
+  const { taskId } = req.params;
+  const files = req.files;
+
+  if (!files || files.length === 0) {
+    console.error("No files uploaded");
+    return res.status(400).json({ error: "No files uploaded" });
+  }
+  
+  try {
+    const updatedTask = await TaskModel.findByIdAndUpdate(
+      taskId,
+      {
+        files: files.map(file => file.path)
+      }
     );
     res.status(200).json(updatedTask);
   } catch (err) {
@@ -35,7 +82,18 @@ export const getTasksForJob = async (req, res) => {
   const { jobId } = req.params;
   
   try {
-    const tasks = await Task.find({ job: jobId });
+    const tasks = await TaskModel.find({ job: jobId });
+    res.status(200).json(tasks);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
+export const getTasksForUser = async (req, res) => {
+  const { userId } = req.params;
+  
+  try {
+    const tasks = await TaskModel.find({ assignedTo: userId });
     res.status(200).json(tasks);
   } catch (err) {
     res.status(400).json({ error: err.message });

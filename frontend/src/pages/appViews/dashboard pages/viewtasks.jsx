@@ -1,240 +1,196 @@
-import React, { useState } from 'react';
-import { FiPlus, FiEdit2, FiX, FiUserPlus, FiPaperclip, FiFileText, FiSend } from 'react-icons/fi';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import React, { useState } from "react";
+import { MdOutlineFileUpload } from "react-icons/md";
+import { AiOutlineCloseCircle, AiOutlineFile } from "react-icons/ai";
+import ReactDOM from "react-dom";
+import Modal from "react-modal";
+import { axiosInstance } from "../../../utils/axiosInstance";
+
+const customStyles = {
+  content: {
+    top: "50%",
+    left: "50%",
+    right: "auto",
+    bottom: "auto",
+    marginRight: "-50%",
+    transform: "translate(-50%, -50%)",
+  },
+};
+
+Modal.setAppElement("#root");
+
 
 // Main ViewTasks component
 const ViewTasks = () => {
-  const [isModalOpen, setModalOpen] = useState(false);
+  let subtitle;
+  const [selectedTask,setSelectedTask] = useState({})
+  const [modalIsOpen, setIsOpen] = React.useState(false);
+  const [tasks, setTasks] = useState([])
 
-  // Pagination state
-  const [currentPages, setCurrentPages] = useState({
-    todo: 1,
-    inProgress: 1,
-    done: 1,
-  });
-  const tasksPerPage = 5;
+  function openModal() {
+    setIsOpen(true);
+  }
 
-  const [columns, setColumns] = useState({
-    todo: [
-      { id: '1', title: 'Change charts javascript', dueDate: '5 days left', image: null },
-      { id: '2', title: 'Change homepage', dueDate: '22 days left', image: 'https://via.placeholder.com/150' },
-      { id: '3', title: 'Task 3', dueDate: '10 days left', image: null },
-      { id: '4', title: 'Task 4', dueDate: '12 days left', image: 'https://via.placeholder.com/150' },
-      { id: '7', title: 'Task 7', dueDate: '2 days left', image: 'https://via.placeholder.com/150' },
-    ],
-    inProgress: [
-      { id: '5', title: 'Redesign tables card', dueDate: '9 days left', image: 'https://via.placeholder.com/150' },
-    ],
-    done: [
-      { id: '6', title: 'Redesign homepage', status: 'Done', image: 'https://via.placeholder.com/150' },
-    ],
-  });
+  function afterOpenModal() {
+    // references are now sync'd and can be accessed.
+    subtitle.style.color = "#f00";
+  }
 
-  const toggleModal = () => {
-    setModalOpen(!isModalOpen);
-  };
+  function closeModal() {
+    setIsOpen(false);
+  }
 
-  const addCard = (columnName) => {
-    const newCard = { id: `${Date.now()}`, title: 'New Task', dueDate: 'TBD', image: null };
-    setColumns((prevColumns) => ({
-      ...prevColumns,
-      [columnName]: [...prevColumns[columnName], newCard],
-    }));
-  };
+  const [files, setFiles] = useState(null)
 
-  // Pagination Logic
-  const getCurrentPageTasks = (cards, columnName) => {
-    const currentPage = currentPages[columnName];
-    const indexOfLastTask = currentPage * tasksPerPage;
-    const indexOfFirstTask = indexOfLastTask - tasksPerPage;
-    return cards.slice(indexOfFirstTask, indexOfLastTask);
-  };
-
-  const handleNextPage = (columnName) => {
-    const totalTasks = columns[columnName].length;
-    const totalPages = Math.ceil(totalTasks / tasksPerPage);
-    if (currentPages[columnName] < totalPages) {
-      setCurrentPages((prevPages) => ({
-        ...prevPages,
-        [columnName]: prevPages[columnName] + 1,
-      }));
+  const submitTask = async ()=> {
+    const formData = new FormData();
+    for(file of files){
+      formData('files', file);
     }
-  };
-
-  const handlePrevPage = (columnName) => {
-    if (currentPages[columnName] > 1) {
-      setCurrentPages((prevPages) => ({
-        ...prevPages,
-        [columnName]: prevPages[columnName] - 1,
-      }));
+    try{
+      const response = await axiosInstance.put(`/task/upload/${selectedTask?._id}`,formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        }
+      })
+      if(response.data){
+        Swal.fire({
+          title: "Task",
+          text: `Task Submitted successfully !!!`,
+          icon: "success",
+          confirmButtonText: "OK",
+        }).then(() => {
+          return;
+        });
+      }
+    }catch(err){
+      Swal.fire({
+        title: "Task",
+        text: `An error when submitting task try again !!!`,
+        icon: "error",
+        confirmButtonText: "OK",
+      }).then(() => {
+        return;
+      });
+    }finally{
+      fetchTasks();
     }
-  };
+  }
 
-  const onDragEnd = (result) => {
-    const { source, destination } = result;
-    if (!destination) return;
-
-    const sourceCol = [...columns[source.droppableId]];
-    const destCol = [...columns[destination.droppableId]];
-    const [removedTask] = sourceCol.splice(source.index, 1);
-    destCol.splice(destination.index, 0, removedTask);
-
-    setColumns({
-      ...columns,
-      [source.droppableId]: sourceCol,
-      [destination.droppableId]: destCol,
-    });
-  };
+  const fetchTasks=async()=>{
+    let storedUser = sessionStorage.getItem("user");
+    if (storedUser) {
+      storedUser = JSON.parse(storedUser);
+    }
+    try{
+      const response = await axiosInstance.get(`/task/user/${storedUser?._id}`)
+      if(response.data){
+        setTasks([...response.data])
+      }
+    }catch(err){
+      Swal.fire({
+        title: "Task",
+        text: `Failed to fetch tasks try again`,
+        icon: "error",
+        confirmButtonText: "OK",
+      }).then(() => {
+        return;
+      });
+    }
+  }
 
   return (
-    <DragDropContext onDragEnd={onDragEnd}>
-      <div className="flex p-5 space-x-4 h-full w-full overflow-x-auto">
-        {Object.keys(columns).map((columnName) => (
-          <Column
-            key={columnName}
-            title={columnName}
-            cards={getCurrentPageTasks(columns[columnName], columnName)}
-            onAddCard={() => addCard(columnName)}
-            onEdit={toggleModal}
-            columnName={columnName}
-            handleNextPage={() => handleNextPage(columnName)}
-            handlePrevPage={() => handlePrevPage(columnName)}
-            currentPage={currentPages[columnName]}
-            totalPages={Math.ceil(columns[columnName].length / tasksPerPage)}
-          />
-        ))}
-        {isModalOpen && <Modal onClose={toggleModal} />}
+    <div className="w-full h-full flex justify-center items-start">
+      <Modal
+        isOpen={modalIsOpen}
+        onAfterOpen={afterOpenModal}
+        onRequestClose={closeModal}
+        style={customStyles}
+        contentLabel="Tasks"
+      >
+        <div className="w-[600px] h-[650px] bg-white rounded-md ">
+          <button
+            onClick={closeModal}
+            className="bg-red-500 text-white w-6 h-6 mb-2 flex justify-center items-center text-lg rounded-full shadow-md flex items-center float-right"
+          >
+            x
+          </button>
+          <div className="bg-[#BEBEBE]  h-full w-full flex items-center justify-center flex flex-col">
+            <div className="uploadSection bg-[whitesmoke] h-[95%] w-[80%] shadow-2xl border rounded-2xl ">
+              <div className="flex justify-between my-8">
+                  <button onClick={closeModal} className="border-2 border-[#BEBEBE] border-solid ml-4 rounded-full">
+                    cancel
+                  </button>
+                  <button onClick={()=> submitTask()} className="rounded-full mr-4 bg-black text-white">
+                    continue
+                  </button>
+              </div>
+              <h1 className="text-3xl text-center">
+                Finished Task and wish to submit ?
+              </h1>
+              <p className="text-center">
+                Add your documents here and upload them
+              </p>
+              <div className="w-full h-3/4 flex flex-col items-center justify-center">
+                <div className=" border-4 border-dashed border-[#BEBEBE] w-[90%] h-[75%] flex flex-col items-center justify-center mt-20">
+                  <MdOutlineFileUpload size={32} />
+                  <p>Upload complete work ...</p>&nbsp;
+                  <input type="file" multiple  onChange={e=> setFiles(e.target.files)} className="border-2 border-[#BEBEBE] border-solid rounded-full" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Modal>
+      <div className="relative overflow-x-auto shadow-md sm:rounded-lg mt-4 w-11/12">
+        <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+          <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+            <tr>
+              <th scope="col" className="px-6 py-3">
+                Product name
+              </th>
+              <th scope="col" className="px-6 py-3">
+                Color
+              </th>
+              <th scope="col" className="px-6 py-3">
+                Category
+              </th>
+              <th scope="col" className="px-6 py-3">
+                Price
+              </th>
+              <th scope="col" className="px-6 py-3">
+                Status
+              </th>
+              <th scope="col" className="px-6 py-3 flex justify-center">
+                Action
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr className="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700">
+              <th
+                scope="row"
+                className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+              >
+                Apple MacBook Pro 17"
+              </th>
+              <td className="px-6 py-4">Silver</td>
+              <td className="px-6 py-4">Laptop</td>
+              <td className="px-6 py-4">$2999</td>
+              <td className="px-6 py-4">Approved</td>
+              <td className="px-6 py-4 flex justify-center">
+                <button
+                  onClick={openModal}
+                  className="rounded bg-blue-500 font-medium text-white hover:opacity-0.8"
+                >
+                  Upload Task
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-    </DragDropContext>
+    </div>
   );
 };
 
-// Modal Component
-const Modal = ({ onClose }) => (
-  <div className="fixed inset-0 bg-black bg-opacity-65 flex justify-center items-center z-50">
-    <div className="bg-white p-6 rounded-lg relative shadow-2xl max-w-2xl w-full">
-      <button
-        className="absolute top-3 right-3 text-black text-2xl outline-"
-        onClick={onClose}
-      >
-        <FiX />
-      </button>
-      <h3 className="text-xl font-bold mb-4 text-black">Edit Task</h3>
-      <h4 className="text-lg font-semibold mb-2 text-black">Redesign Homepage</h4>
-      <p className="text-sm mb-4 text-gray-400">Added by Bonnie Green, 22 hours ago</p>
-
-      <div className="flex items-center mb-4">
-        <img className="w-8 h-8 rounded-full border-2 border-gray-700" src="https://via.placeholder.com/150" alt="Avatar" />
-        <button className="bg-blue-700 text-black px-3 py-1 rounded ml-4 flex items-center">
-          <FiUserPlus className="mr-1" /> Join
-        </button>
-        <button className="bg-gray-600 text-black px-3 py-1 rounded ml-2 flex items-center">
-          <FiPaperclip className="mr-1" /> Attachment
-        </button>
-      </div>
-
-      <div className="mb-4">
-        <h5 className="font-semibold mb-1 text-gray-300 flex items-center">
-          <FiFileText className="mr-2" /> Description
-        </h5>
-        <p className="text-sm text-gray-400 mb-2">
-          I made some wireframes that we would like you to follow...
-        </p>
-        <button className="text-blue-500 text-sm">Show Full Description</button>
-      </div>
-
-      <textarea
-        className="w-full p-2 bg-[#BEBEBE] rounded text-sm mb-4 text-black"
-        placeholder="Write a comment..."
-        rows="6"
-      ></textarea>
-      <div className="flex justify-between items-center mb-4">
-        <button className="bg-blue-700 text-black px-4 py-2 rounded flex items-center">
-          <FiSend className="mr-1" /> Post comment
-        </button>
-        <span className="text-gray-400 text-sm flex items-center">
-          <FiPaperclip className="mr-1" /> Attach a file
-        </span>
-      </div>
-
-      <div className="flex justify-between">
-        <button className="bg-blue-700 px-4 py-2 rounded text-black">Save</button>
-        <button className="bg-gray-600 px-4 py-2 rounded text-black">Move</button>
-        <button className="bg-gray-600 px-4 py-2 rounded text-black">Copy</button>
-        <button className="bg-gray-600 px-4 py-2 rounded text-black">Archive</button>
-        <button className="bg-gray-600 px-4 py-2 rounded text-black">Watch</button>
-      </div>
-    </div>
-  </div>
-);
-
-// Column Component
-const Column = ({ title, cards, onAddCard, onEdit, columnName, handleNextPage, handlePrevPage, currentPage, totalPages }) => (
-  <Droppable droppableId={columnName}>
-    {(provided) => (
-      <div
-        className="bg-whitesmoke overflow-y-scroll rounded-2xl w-80 p-4 shadow-lg flex-shrink-0 "
-        {...provided.droppableProps}
-        ref={provided.innerRef}
-      >
-        <h2 className="text-lg font-bold mb-3 text-black capitalize">{title}</h2>
-        <div className="flex-grow space-y-4">
-          {cards.map((card, index) => (
-            <Card key={card.id} card={card} index={index} onEdit={onEdit} />
-          ))}
-        </div>
-        {provided.placeholder}
-        <AddCard onAddCard={onAddCard} />
-        <div className="flex justify-between mt-4">
-          <button onClick={handlePrevPage} className="bg-gray-700 px-4 py-2 rounded text-white" disabled={currentPage === 1}>
-            Prev
-          </button>
-          <button onClick={handleNextPage} className="bg-[rgba(239,146,115,1)] px-4 py-2 rounded text-white" disabled={currentPage === totalPages}>
-            Next
-          </button>
-        </div>
-      </div>
-    )}
-  </Droppable>
-);
-
-// Card Component
-const Card = ({ card, index, onEdit }) => (
-  <Draggable draggableId={String(card.id)} index={index}>
-    {(provided) => (
-      <div
-        className="bg-[rgba(239,146,115,1)] rounded-lg p-4 text-white"
-        {...provided.draggableProps}
-        {...provided.dragHandleProps}
-        ref={provided.innerRef}
-      >
-        <div className="flex justify-between items-center mb-2">
-          <h3 className="text-sm font-semibold">{card.title}</h3>
-          <FiEdit2 className="text-white cursor-pointer" onClick={onEdit} />
-        </div>
-        <p className="text-xs text-white-300">{card.dueDate}</p>
-        {card.image && (
-          <img
-            src={card.image}
-            alt={card.title}
-            className="w-full h-32 object-cover rounded mt-2"
-          />
-        )}
-      </div>
-    )}
-  </Draggable>
-);
-
-// AddCard component
-const AddCard = ({ onAddCard }) => (
-  <button
-    className="w-full bg-gray-700 text-white px-4 py-2 rounded flex justify-center items-center mt-4"
-    onClick={onAddCard}
-  >
-    <FiPlus className="mr-2" />
-    Add Task
-  </button>
-);
-
 export default ViewTasks;
-

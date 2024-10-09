@@ -56,10 +56,10 @@ const Sidebar = ({ darkMode, isCollapsed, toggleSidebar }) => {
           <FaTasks />
           <span className={`${isCollapsed ? 'hidden' : 'ml-2'}`}>Tasks</span>
         </NavLink>
-        <NavLink to="/dashboard/uploadtasks" className={({ isActive }) => `flex items-center p-4 mx-[8%] py-4 my-2 hover:bg-[#EF9273] ${isActive ? 'text-white bg-[#EF9273] rounded' : ''}`}>
+        {/* <NavLink to="/dashboard/uploadtasks" className={({ isActive }) => `flex items-center p-4 mx-[8%] py-4 my-2 hover:bg-[#EF9273] ${isActive ? 'text-white bg-[#EF9273] rounded' : ''}`}>
           <FaFileUpload />
           <span className={`${isCollapsed ? 'hidden' : 'ml-2'}`}>Upload Task</span>
-        </NavLink>
+        </NavLink> */}
 
         {
           loggedUser?.role ==='jobseeker' &&
